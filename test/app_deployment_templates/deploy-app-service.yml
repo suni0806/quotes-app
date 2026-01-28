@@ -1,0 +1,93 @@
+# ===================================================================
+# Deploy Template for App Service Applications
+# Version: 1.0.0
+# Description: Deploys applications to Azure App Service with health checks
+# ===================================================================
+
+parameters:
+  - name: environments
+    type: object
+    default: []
+
+jobs:
+  - ${{ each env in parameters.environments }}:
+    - ${{ if or(eq(variables['Build.SourceBranch'], format('refs/heads/{0}', env.triggerBranch)), eq(variables['Build.Reason'], 'Manual')) }}:
+      - deployment: Deploy_${{ env.name }}
+        displayName: 'Deploy to ${{ env.name }}'
+        timeoutInMinutes: ${{ env.timeoutInMinutes }}
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: ${{ env.environment }}
+        variables:
+          imageTag: ${{ env.tagPrefix }}$(Build.BuildNumber)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  displayName: 'Download Build Artifact'
+                  inputs:
+                    artifact: 'application-${{ env.name }}'
+                    path: '$(Pipeline.Workspace)/drop'
+
+                - task: AzureWebApp@1
+                  displayName: 'Deploy to Azure App Service'
+                  inputs:
+                    azureSubscription: ${{ env.azureServiceConnection }}
+                    appType: 'webAppLinux'
+                    appName: ${{ env.appServiceName }}
+                    deployToSlotOrASE: true
+                    resourceGroupName: 'rg-quotes-app-${{ env.name }}'
+                    slotName: ${{ env.appServiceSlot }}
+                    package: '$(Pipeline.Workspace)/drop/app-${{ env.name }}-$(imageTag).zip'
+                    runtimeStack: 'NODE|18-lts'
+                    startUpCommand: 'node server.js'
+
+                - script: |
+                    echo "Waiting for application to start..."
+                    sleep ${{ env.healthCheckDelay }}
+                  displayName: 'Wait for Deployment'
+
+                - script: |
+                    HEALTH_URL="https://${{ env.appServiceName }}.azurewebsites.net/health"
+                    echo "Health Check: $HEALTH_URL"
+                    
+                    for i in $(seq 1 ${{ env.healthCheckRetries }}); do
+                      STATUS=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_URL)
+                      if [ $STATUS -eq 200 ]; then
+                        echo "✓ Health check passed (HTTP $STATUS)"
+                        exit 0
+                      fi
+                      echo "Attempt $i/${{ env.healthCheckRetries }}: HTTP $STATUS, retrying in ${{ env.healthCheckDelay }}s..."
+                      sleep ${{ env.healthCheckDelay }}
+                    done
+                    
+                    echo "✗ Health check failed after ${{ env.healthCheckRetries }} attempts"
+                    exit 1
+                  displayName: 'Health Check'
+
+                - ${{ if eq(env.runSmokeTests, true) }}:
+                  - script: |
+                      QUOTE_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/quote"
+                      echo "API Smoke Test: $QUOTE_URL"
+                      
+                      RESPONSE=$(curl -s $QUOTE_URL)
+                      if echo "$RESPONSE" | grep -q "quote"; then
+                        echo "✓ API smoke test passed"
+                        echo "Sample response: $RESPONSE" | head -c 200
+                        exit 0
+                      else
+                        echo "✗ API smoke test failed"
+                        echo "Response: $RESPONSE"
+                        exit 1
+                      fi
+                    displayName: 'API Smoke Test'
+
+                - script: |
+                      STATS_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/stats"
+                      echo "Stats Check: $STATS_URL"
+                      
+                      RESPONSE=$(curl -s $STATS_URL)
+                      echo "Database Stats: $RESPONSE"
+                    displayName: 'Database Stats Check'
+                    continueOnError: true

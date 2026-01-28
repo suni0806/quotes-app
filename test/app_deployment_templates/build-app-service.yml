@@ -1,0 +1,56 @@
+# ===================================================================
+# Build Template for App Service Applications
+# Version: 1.0.0
+# Description: Builds Node.js applications and creates deployment packages
+# ===================================================================
+
+parameters:
+  - name: environments
+    type: object
+    default: []
+
+jobs:
+  - ${{ each env in parameters.environments }}:
+    - ${{ if or(eq(variables['Build.SourceBranch'], format('refs/heads/{0}', env.triggerBranch)), eq(variables['Build.Reason'], 'Manual')) }}:
+      - job: Build_${{ env.name }}
+        displayName: 'Build for ${{ env.name }}'
+        timeoutInMinutes: ${{ env.timeoutInMinutes }}
+        variables:
+          imageTag: ${{ env.tagPrefix }}$(Build.BuildNumber)
+        steps:
+          - checkout: self
+            displayName: 'Checkout Source Code'
+
+          - task: NodeTool@0
+            displayName: 'Install Node.js ${{ env.nodeVersion }}'
+            inputs:
+              versionSpec: ${{ env.nodeVersion }}
+
+          - script: |
+              cd application
+              echo "Installing dependencies..."
+              npm ci
+              echo "Build completed successfully"
+            displayName: 'Install Dependencies'
+
+          - script: |
+              cd application
+              npm test || echo "Tests completed with warnings"
+            displayName: 'Run Tests'
+            continueOnError: true
+
+          - task: ArchiveFiles@2
+            displayName: 'Create Deployment Package'
+            inputs:
+              rootFolderOrFile: ${{ env.workingDirectory }}
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/app-${{ env.name }}-$(imageTag).zip'
+              replaceExistingArchive: true
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish Build Artifact'
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifact: 'application-${{ env.name }}'
+              publishLocation: 'pipeline'

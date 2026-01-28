@@ -1,0 +1,4 @@
+environment     = "prod"
+location        = "eastus2"
+admin_username  = "sqladmin"
+admin_password  = "CHANGE-ME-P@ssw0rd123!"  # IMPORTANT: Change this to a strong password

@@ -1,0 +1,66 @@
+parameters:
+  - name: env
+    type: string
+  - name: backendConfig
+    type: string
+  - name: varFile
+    type: string
+  - name: subscription
+    type: string
+  - name: tenantid
+    type: string
+  - name: cloud_provider
+    type: string
+  - name: appname
+    type: string
+
+jobs:
+  - job: validate_${{ parameters.env }}
+    displayName: 'Validate ${{ parameters.env }}'
+    steps:
+      - checkout: self
+
+      - task: TerraformInstaller@0
+        displayName: 'Install Terraform'
+        inputs:
+          terraformVersion: '1.5.0'
+
+      - task: AzureCLI@2
+        displayName: 'Terraform Init'
+        inputs:
+          azureSubscription: 'sc-1'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            cd infrastructure/platform
+            terraform init ${{ parameters.backendConfig }}
+          addSpnToEnvironment: true
+
+      - task: AzureCLI@2
+        displayName: 'Terraform Plan'
+        inputs:
+          azureSubscription: 'sc-1'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            cd infrastructure/platform
+            terraform plan ${{ parameters.varFile }} \
+              -var="subscription_id=${{ parameters.subscription }}" \
+              -var="tenant_id=${{ parameters.tenantid }}" \
+              -var="sql_admin_password=$(SQL_ADMIN_PASSWORD)" \
+              -out=${{ parameters.env }}.tfplan
+          addSpnToEnvironment: true
+        env:
+          SQL_ADMIN_PASSWORD: $(SQL_ADMIN_PASSWORD)
+
+      - script: |
+          echo "##vso[task.setvariable variable=changeDetected;isOutput=true]true"
+        name: outputVars
+        displayName: 'Set Change Detection Variable'
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish Plan'
+        inputs:
+          targetPath: 'infrastructure/platform/${{ parameters.env }}.tfplan'
+          artifact: 'tfplan-${{ parameters.env }}'
+          publishLocation: 'pipeline'

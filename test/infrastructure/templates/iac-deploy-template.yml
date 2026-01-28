@@ -1,0 +1,68 @@
+parameters:
+  - name: env
+    type: string
+  - name: backendConfig
+    type: string
+  - name: varFile
+    type: string
+  - name: subscription
+    type: string
+  - name: tenantid
+    type: string
+  - name: cloud_provider
+    type: string
+  - name: appname
+    type: string
+
+jobs:
+  - deployment: deploy_${{ parameters.env }}
+    displayName: 'Deploy to ${{ parameters.env }}'
+    environment: 'infrastructure-${{ parameters.env }}'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+
+            - task: TerraformInstaller@0
+              displayName: 'Install Terraform'
+              inputs:
+                terraformVersion: '1.5.0'
+
+            - task: DownloadPipelineArtifact@2
+              displayName: 'Download Plan'
+              inputs:
+                artifact: 'tfplan-${{ parameters.env }}'
+                path: 'infrastructure/platform'
+
+            - task: AzureCLI@2
+              displayName: 'Terraform Init'
+              inputs:
+                azureSubscription: 'sc-1'
+                scriptType: 'bash'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  cd infrastructure/platform
+                  terraform init ${{ parameters.backendConfig }}
+                addSpnToEnvironment: true
+
+            - task: AzureCLI@2
+              displayName: 'Terraform Apply'
+              inputs:
+                azureSubscription: 'sc-1'
+                scriptType: 'bash'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  cd infrastructure/platform
+                  terraform apply -auto-approve ${{ parameters.env }}.tfplan
+                addSpnToEnvironment: true
+
+            - script: |
+                echo "=========================================="
+                echo "  Deployment Summary"
+                echo "=========================================="
+                echo "Environment: ${{ parameters.env }}"
+                echo "Application: ${{ parameters.appname }}"
+                echo "Subscription: ${{ parameters.subscription }}"
+                echo "=========================================="
+              displayName: 'Deployment Summary'

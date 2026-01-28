@@ -1,0 +1,105 @@
+variables:
+- name: app_name
+  value: 'quotes_application'
+
+parameters:
+  - name: cloud_provider
+    type: string
+    default: 'azure'
+  - name: template_version
+    type: string
+    default: v1.0.0
+  - name: environments
+    type: object
+    default:
+
+    - dev:
+      name: quotes_dev
+      backendConfig: '--backend-config=environments/dev/backend.tfvars'
+      varFile: '--var-file=environments/dev/variables.tfvars'
+      subscription: '59533d6a-4284-4f40-8124-2b2dba74c4e0'
+      tenantid: '64486216-28cf-43da-97ed-cfcb795b01ba'
+
+    - staging:
+      name: quotes_staging
+      backendConfig: '--backend-config=environments/staging/backend.tfvars'
+      varFile: '--var-file=environments/staging/variables.tfvars'
+      subscription: '59533d6a-4284-4f40-8124-2b2dba74c4e0'
+      tenantid: '64486216-28cf-43da-97ed-cfcb795b01ba'
+
+    - production:
+      name: quotes_production
+      backendConfig: '--backend-config=environments/production/backend.tfvars'
+      varFile: '--var-file=environments/production/variables.tfvars'
+      subscription: '59533d6a-4284-4f40-8124-2b2dba74c4e0'
+      tenantid: '64486216-28cf-43da-97ed-cfcb795b01ba'
+
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - infrastructure
+
+pr:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - infrastructure
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: Build
+    displayName: Build
+    jobs:
+    - template: ../templates/iac-build-template.yml
+      parameters:
+        environments: ${{ parameters.environments }}
+        appname: '$(app_name)'
+
+  - stage: Backend_Storage
+    variables:
+      bckndchangeVar: $[ dependencies.Build.outputs['Build.backendoutputVars.backendchange']]
+    condition: and(succeeded('Build'), eq(variables['bckndchangeVar'], 'true'), not(canceled()) )
+    displayName: Backend_Storage
+    jobs:
+    - template: ../templates/iac-backend-storage-template.yml
+      parameters:
+        environments: ${{ parameters.environments }}
+
+  - ${{ each environment in parameters.environments }}:
+    - stage: Validate_${{ environment.name }}
+      condition: and(not(failed()), not(failed('Backend_Storage')), not(canceled()) )
+      displayName: Validate_${{ environment.name }}
+      jobs:
+      - template: ../templates/iac-validate-template.yml
+        parameters:
+          env: '${{ environment.name }}'
+          backendConfig: '${{ environment.backendConfig }}'
+          varFile: '${{ environment.varFile }}'
+          subscription: '${{ environment.subscription }}'
+          tenantid: '${{ environment.tenantid }}'
+          cloud_provider: '${{ parameters.cloud_provider }}'
+          appname: '$(app_name)'
+
+    - stage: DeployTo${{ environment.name }}
+      displayName: DeployTo_${{ environment.name }}
+      variables:
+        changeVar: $[ dependencies.Validate_${{ environment.name }}.outputs['validate_${{ environment.name }}.outputVars.changeDetected']]
+      condition: and(succeeded('Validate_${{ environment.name }}'), eq(variables['Build.SourceBranch'], 'refs/heads/main'), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['changeVar'], 'true'))
+      jobs:
+      - template: ../templates/iac-deploy-template.yml
+        parameters:
+          env: '${{ environment.name }}'
+          backendConfig: '${{ environment.backendConfig }}'
+          varFile: '${{ environment.varFile }}'
+          subscription: '${{ environment.subscription }}'
+          tenantid: '${{ environment.tenantid }}'
+          cloud_provider: '${{ parameters.cloud_provider }}'
+          appname: '$(app_name)'

@@ -1,0 +1,37 @@
+parameters:
+  - name: environments
+    type: object
+  - name: appname
+    type: string
+
+jobs:
+  - job: Build
+    displayName: 'Build and Validate'
+    steps:
+      - checkout: self
+
+      - task: TerraformInstaller@0
+        displayName: 'Install Terraform'
+        inputs:
+          terraformVersion: '1.5.0'
+
+      - script: |
+          echo "=========================================="
+          echo "  Building Infrastructure for: ${{ parameters.appname }}"
+          echo "=========================================="
+          cd infrastructure/platform
+          terraform fmt -check -recursive
+        displayName: 'Format Check'
+        continueOnError: true
+
+      - script: |
+          cd infrastructure/platform
+          terraform init -backend=false
+          terraform validate
+        displayName: 'Validate Terraform'
+
+      - script: |
+          echo "Build completed successfully"
+          echo "##vso[task.setvariable variable=backendchange;isOutput=true]true"
+        name: backendoutputVars
+        displayName: 'Set Output Variables'

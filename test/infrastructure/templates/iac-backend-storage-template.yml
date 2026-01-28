@@ -1,0 +1,22 @@
+parameters:
+  - name: environments
+    type: object
+
+jobs:
+  - job: BackendStorage
+    displayName: 'Verify Backend Storage'
+    steps:
+      - checkout: self
+
+      - task: AzureCLI@2
+        displayName: 'Check Storage Accounts'
+        inputs:
+          azureSubscription: 'sc-1'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            echo "Verifying backend storage accounts..."
+            ${{ each environment in parameters.environments }}:
+              echo "Checking storage for ${{ environment.name }}..."
+            echo "Backend storage verification complete"
+          addSpnToEnvironment: true

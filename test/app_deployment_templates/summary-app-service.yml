@@ -1,0 +1,50 @@
+# ===================================================================
+# Summary Template for App Service Deployments
+# Version: 1.0.0
+# Description: Displays deployment summary and status information
+# ===================================================================
+
+parameters:
+  - name: environments
+    type: object
+    default: []
+
+jobs:
+  - ${{ each env in parameters.environments }}:
+    - ${{ if or(eq(variables['Build.SourceBranch'], format('refs/heads/{0}', env.triggerBranch)), eq(variables['Build.Reason'], 'Manual')) }}:
+      - job: Summary_${{ env.name }}
+        displayName: 'Summary for ${{ env.name }}'
+        pool:
+          vmImage: 'ubuntu-latest'
+        variables:
+          imageTag: ${{ env.tagPrefix }}$(Build.BuildNumber)
+        steps:
+          - script: |
+              echo "=========================================="
+              echo "  Deployment Summary - ${{ env.name }}"
+              echo "=========================================="
+              echo "Environment:      ${{ env.name }}"
+              echo "Build ID:         $(Build.BuildId)"
+              echo "Build Number:     $(Build.BuildNumber)"
+              echo "Version Tag:      $(imageTag)"
+              echo "App Service:      ${{ env.appServiceName }}"
+              echo "Slot:             ${{ env.appServiceSlot }}"
+              echo "Branch:           $(Build.SourceBranchName)"
+              echo "Commit:           $(Build.SourceVersion)"
+              echo "=========================================="
+              echo "URLs:"
+              echo "  Application:    https://${{ env.appServiceName }}.azurewebsites.net"
+              echo "  Health:         https://${{ env.appServiceName }}.azurewebsites.net/health"
+              echo "  Quote API:      https://${{ env.appServiceName }}.azurewebsites.net/api/quote"
+              echo "  Stats API:      https://${{ env.appServiceName }}.azurewebsites.net/api/stats"
+              echo "=========================================="
+            displayName: 'Display Deployment Summary'
+
+          - ${{ if eq(env.notifyOnFailure, true) }}:
+            - script: |
+                if [ "$(Agent.JobStatus)" != "Succeeded" ]; then
+                  echo "⚠️  Deployment to ${{ env.name }} encountered issues"
+                  echo "Please check the pipeline logs for details"
+                fi
+              displayName: 'Check Deployment Status'
+              condition: always()
