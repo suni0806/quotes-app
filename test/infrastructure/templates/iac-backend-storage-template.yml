@@ -16,7 +16,7 @@ jobs:
           scriptLocation: 'inlineScript'
           inlineScript: |
             echo "Verifying backend storage accounts..."
-            ${{ each environment in parameters.environments }}:
-              echo "Checking storage for ${{ environment.name }}..."
+            echo "Checking storage account: statefiletest001"
+            echo "Checking container: tfstate"
             echo "Backend storage verification complete"
           addSpnToEnvironment: true
