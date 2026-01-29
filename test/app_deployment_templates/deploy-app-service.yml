@@ -67,27 +67,27 @@ jobs:
                   displayName: 'Health Check'
 
                 - ${{ if eq(env.runSmokeTests, true) }}:
-                  - script: |
-                      QUOTE_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/quote"
-                      echo "API Smoke Test: $QUOTE_URL"
-                      
-                      RESPONSE=$(curl -s $QUOTE_URL)
-                      if echo "$RESPONSE" | grep -q "quote"; then
-                        echo "✓ API smoke test passed"
-                        echo "Sample response: $RESPONSE" | head -c 200
-                        exit 0
-                      else
-                        echo "✗ API smoke test failed"
-                        echo "Response: $RESPONSE"
-                        exit 1
-                      fi
-                    displayName: 'API Smoke Test'
+                  script: |
+                    QUOTE_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/quote"
+                    echo "API Smoke Test: $QUOTE_URL"
+                    
+                    RESPONSE=$(curl -s $QUOTE_URL)
+                    if echo "$RESPONSE" | grep -q "quote"; then
+                      echo "✓ API smoke test passed"
+                      echo "Sample response: $RESPONSE" | head -c 200
+                      exit 0
+                    else
+                      echo "✗ API smoke test failed"
+                      echo "Response: $RESPONSE"
+                      exit 1
+                    fi
+                  displayName: 'API Smoke Test'
 
                 - script: |
-                      STATS_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/stats"
-                      echo "Stats Check: $STATS_URL"
-                      
-                      RESPONSE=$(curl -s $STATS_URL)
-                      echo "Database Stats: $RESPONSE"
-                    displayName: 'Database Stats Check'
-                    continueOnError: true
+                    STATS_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/stats"
+                    echo "Stats Check: $STATS_URL"
+                    
+                    RESPONSE=$(curl -s $STATS_URL)
+                    echo "Database Stats: $RESPONSE"
+                  displayName: 'Database Stats Check'
+                  continueOnError: true
