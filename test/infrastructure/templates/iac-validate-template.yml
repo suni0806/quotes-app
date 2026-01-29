@@ -36,17 +36,22 @@ jobs:
             terraform init ${{ parameters.backendConfig }}
           addSpnToEnvironment: true
 
-      - script: |
-          cd test/infrastructure/platform
-          echo "Running Terraform Plan..."
-          call terraform plan ${{ parameters.varFile }} ^
-            -var="subscription_id=${{ parameters.subscription }}" ^
-            -var="tenant_id=${{ parameters.tenantid }}" ^
-            -var="sql_admin_password=%SQL_ADMIN_PASSWORD%" ^
-            -out=${{ parameters.env }}.tfplan
-          
-          echo "##vso[task.setvariable variable=changeDetected;isOutput=true]true"
-        displayName: 'Terraform Plan (CMD)'
+      - task: AzureCLI@2
+        displayName: 'Terraform Plan'
+        inputs:
+          azureSubscription: 'sc-1'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            Set-Location test/infrastructure/platform
+            terraform plan ${{ parameters.varFile }} `
+              -var="subscription_id=${{ parameters.subscription }}" `
+              -var="tenant_id=${{ parameters.tenantid }}" `
+              -var="sql_admin_password=$(SQL_ADMIN_PASSWORD)" `
+              -out=${{ parameters.env }}.tfplan
+            
+            Write-Host "##vso[task.setvariable variable=changeDetected;isOutput=true]true"
+          addSpnToEnvironment: true
         env:
           SQL_ADMIN_PASSWORD: $(SQL_ADMIN_PASSWORD)
 
