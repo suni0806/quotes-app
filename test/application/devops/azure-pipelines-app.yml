@@ -3,6 +3,22 @@ name: '$(Rev:r)'
 variables:
   tag: $(Build.BuildNumber)
 
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - test/application/**
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - test/application/**
+
 parameters:
   - name: environments
     type: object
@@ -40,27 +56,6 @@ parameters:
 pool:
   vmImage: 'ubuntu-latest'
 
-resources:
-  repositories:
-    - repository: quotes-app
-      type: github
-      name: suni0806/test
-      endpoint: github-connection # Assumed connection name
-      trigger:
-        batch: true
-        branches:
-          include:
-            - main
-        paths:
-          include:
-            - test/application/**
-      pr:
-        branches:
-          include:
-            - main
-        paths:
-          include:
-            - test/application/**
 
 stages:
   # ===================================================================
