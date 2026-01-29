@@ -66,8 +66,7 @@ jobs:
                     exit 1
                   displayName: 'Health Check'
 
-                - ${{ if eq(env.runSmokeTests, true) }}:
-                  script: |
+                - script: |
                     QUOTE_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/quote"
                     echo "API Smoke Test: $QUOTE_URL"
                     
@@ -82,6 +81,7 @@ jobs:
                       exit 1
                     fi
                   displayName: 'API Smoke Test'
+                  condition: and(succeeded(), eq('${{ env.runSmokeTests }}', 'true'))
 
                 - script: |
                     STATS_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/stats"
@@ -90,4 +90,5 @@ jobs:
                     RESPONSE=$(curl -s $STATS_URL)
                     echo "Database Stats: $RESPONSE"
                   displayName: 'Database Stats Check'
+                  condition: always()
                   continueOnError: true
