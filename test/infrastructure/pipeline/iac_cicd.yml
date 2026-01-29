@@ -67,7 +67,7 @@ stages:
   - ${{ each environment in parameters.environments }}:
     - stage: Validate_${{ environment.name }}
       dependsOn: [Build, Backend_Storage]
-      condition: and(succeeded('Build'), or(succeeded('Backend_Storage'), skipped('Backend_Storage')), not(canceled()) )
+      condition: and(succeeded('Build'), not(failed('Backend_Storage')), not(canceled()) )
       displayName: Validate_${{ environment.name }}
       jobs:
       - template: ../templates/iac-validate-template.yml
