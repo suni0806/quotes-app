@@ -28,10 +28,7 @@ variable "object_id" {
   type        = string
 }
 
-variable "app_service_principal_id" {
-  description = "Managed identity principal ID of the App Service"
-  type        = string
-}
+
 
 variable "sql_connection_string" {
   description = "SQL Server connection string to store in Key Vault"

@@ -10,11 +10,7 @@ variable "project_name" {
   default     = "quotesapp"
 }
 
-variable "location" {
-  description = "Azure region for resources"
-  type        = string
-  default     = "eastus2"
-}
+
 
 variable "sql_admin_username" {
   description = "SQL Server administrator username"

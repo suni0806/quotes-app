@@ -35,15 +35,7 @@ resource "azurerm_key_vault_access_policy" "current_user" {
 }
 
 # Access Policy for App Service
-resource "azurerm_key_vault_access_policy" "app_service" {
-  key_vault_id = azurerm_key_vault.main.id
-  tenant_id    = var.tenant_id
-  object_id    = var.app_service_principal_id
 
-  secret_permissions = [
-    "Get", "List"
-  ]
-}
 
 # Store SQL Connection String
 resource "azurerm_key_vault_secret" "sql_connection_string" {

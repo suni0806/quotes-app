@@ -30,7 +30,7 @@ resource "azurerm_resource_group" "main" {
 # Creates VNet, Subnets, and Private DNS zones
 # ===================================================================
 module "networking" {
-  source = "../../modules/networking/v.1.0.0"
+  source = "../modules/networking/v.1.0.0"
 
   resource_group_name            = azurerm_resource_group.main.name
   location                       = azurerm_resource_group.main.location
@@ -47,7 +47,7 @@ module "networking" {
 # Creates storage account for auditing
 # ===================================================================
 module "storage" {
-  source = "../../modules/storage/v.1.0.0"
+  source = "../modules/storage/v.1.0.0"
 
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
@@ -63,7 +63,7 @@ module "storage" {
 # Creates SQL Server, Database, and Private Endpoint
 # ===================================================================
 module "sql_database" {
-  source = "../../modules/sql_database/v.1.0.0"
+  source = "../modules/sql_database/v.1.0.0"
 
   resource_group_name        = azurerm_resource_group.main.name
   location                   = azurerm_resource_group.main.location
@@ -92,7 +92,7 @@ module "sql_database" {
 # Creates Application Insights and Log Analytics
 # ===================================================================
 module "monitoring" {
-  source = "../../modules/monitoring/v.1.0.0"
+  source = "../modules/monitoring/v.1.0.0"
 
   resource_group_name          = azurerm_resource_group.main.name
   location                     = azurerm_resource_group.main.location
@@ -107,7 +107,7 @@ module "monitoring" {
 # Creates App Service Plan, Web App, and Auto-scaling
 # ===================================================================
 module "app_service" {
-  source = "../../modules/app_service/v.1.0.0"
+  source = "../modules/app_service/v.1.0.0"
 
   resource_group_name            = azurerm_resource_group.main.name
   location                       = azurerm_resource_group.main.location
@@ -134,7 +134,7 @@ module "app_service" {
 # Creates Key Vault and stores secrets
 # ===================================================================
 module "key_vault" {
-  source = "../../modules/key_vault/v.1.0.0"
+  source = "../modules/key_vault/v.1.0.0"
 
   resource_group_name      = azurerm_resource_group.main.name
   location                 = azurerm_resource_group.main.location
@@ -142,9 +142,23 @@ module "key_vault" {
   suffix                   = random_string.suffix.result
   tenant_id                = data.azurerm_client_config.current.tenant_id
   object_id                = data.azurerm_client_config.current.object_id
-  app_service_principal_id = module.app_service.app_service_principal_id
+
   sql_connection_string    = "Server=tcp:${module.sql_database.sql_server_fqdn},1433;Initial Catalog=${module.sql_database.sql_database_name};Persist Security Info=False;User ID=${var.sql_admin_username};Password=${var.sql_admin_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
   tags                     = azurerm_resource_group.main.tags
 
-  depends_on = [module.sql_database, module.app_service]
+  depends_on = [module.sql_database]
+}
+
+# ===================================================================
+# Key Vault Access Policy for App Service
+# Defined outside module to break circular dependency
+# ===================================================================
+resource "azurerm_key_vault_access_policy" "app_service" {
+  key_vault_id = module.key_vault.key_vault_id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = module.app_service.app_service_principal_id
+
+  secret_permissions = [
+    "Get", "List"
+  ]
 }
