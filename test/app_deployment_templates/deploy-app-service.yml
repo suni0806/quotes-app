@@ -37,7 +37,7 @@ jobs:
                     appType: 'webAppLinux'
                     appName: ${{ env.appServiceName }}
                     deployToSlotOrASE: true
-                    resourceGroupName: 'rg-quotes-app-${{ env.name }}'
+                    resourceGroupName: ${{ env.resourceGroupName }}
                     slotName: ${{ env.appServiceSlot }}
                     package: '$(Pipeline.Workspace)/drop/app-${{ env.name }}-$(imageTag).zip'
                     runtimeStack: 'NODE|18-lts'

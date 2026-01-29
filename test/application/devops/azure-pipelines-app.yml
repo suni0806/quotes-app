@@ -32,6 +32,7 @@ parameters:
         tagPrefix: "1.0."
         azureServiceConnection: sc-1
         appServiceName: quotesapp-appsvc-dev-h3h4qv
+        resourceGroupName: quotesapp-rg-dev-h3h4qv
         appServiceSlot: production
         nodeVersion: 18.x
         workingDirectory: $(System.DefaultWorkingDirectory)/test/application
@@ -50,6 +51,7 @@ parameters:
         tagPrefix: "1.0."
         azureServiceConnection: sc-1
         appServiceName: quotesapp-appsvc-production-h3h4qv
+        resourceGroupName: quotesapp-rg-production-h3h4qv
         appServiceSlot: production
         nodeVersion: 18.x
         workingDirectory: $(System.DefaultWorkingDirectory)/test/application
