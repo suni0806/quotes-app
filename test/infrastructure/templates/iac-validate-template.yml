@@ -55,8 +55,13 @@ jobs:
             $env:ARM_TENANT_ID = $env:tenantId
             $env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)
 
+            # Set variables via environment variables for robustness
+            $env:TF_VAR_subscription_id = "${{ parameters.subscription }}"
+            $env:TF_VAR_tenant_id = "${{ parameters.tenantid }}"
+            $env:TF_VAR_sql_admin_password = $env:SQL_ADMIN_PASSWORD
+
             Set-Location test/infrastructure/platform
-            terraform plan ${{ parameters.varFile }} -var="subscription_id=${{ parameters.subscription }}" -var="tenant_id=${{ parameters.tenantid }}" -var="sql_admin_password=$env:SQL_ADMIN_PASSWORD" -out=${{ parameters.env }}.tfplan
+            terraform plan ${{ parameters.varFile }} -out="${{ parameters.env }}.tfplan"
             
             Write-Host "##vso[task.setvariable variable=changeDetected;isOutput=true]true"
           addSpnToEnvironment: true
