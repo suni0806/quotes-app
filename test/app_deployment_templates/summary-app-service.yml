@@ -15,7 +15,7 @@ jobs:
       - job: Summary_${{ env.name }}
         displayName: 'Summary for ${{ env.name }}'
         pool:
-          vmImage: 'ubuntu-latest'
+          name: 'test'
         variables:
           imageTag: ${{ env.tagPrefix }}$(Build.BuildNumber)
         steps:

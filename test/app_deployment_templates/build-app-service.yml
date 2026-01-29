@@ -15,6 +15,8 @@ jobs:
       - job: Build_${{ env.name }}
         displayName: 'Build for ${{ env.name }}'
         timeoutInMinutes: ${{ env.timeoutInMinutes }}
+        pool:
+          name: 'test'
         variables:
           imageTag: ${{ env.tagPrefix }}$(Build.BuildNumber)
         steps:

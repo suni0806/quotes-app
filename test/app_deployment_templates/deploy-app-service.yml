@@ -16,7 +16,7 @@ jobs:
         displayName: 'Deploy to ${{ env.name }}'
         timeoutInMinutes: ${{ env.timeoutInMinutes }}
         pool:
-          vmImage: 'ubuntu-latest'
+          name: 'test'
         environment: ${{ env.environment }}
         variables:
           imageTag: ${{ env.tagPrefix }}$(Build.BuildNumber)
