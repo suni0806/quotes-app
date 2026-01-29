@@ -26,8 +26,8 @@ jobs:
             Write-Host "  Building Infrastructure for: ${{ parameters.appname }}"
             Write-Host "=========================================="
             Set-Location test/infrastructure/platform
-            terraform fmt -check -recursive
-        continueOnError: true
+            terraform fmt -recursive
+
 
       - task: AzureCLI@2
         displayName: 'Validate Terraform'

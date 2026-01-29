@@ -71,7 +71,6 @@ module "sql_database" {
   project_name               = var.project_name
   suffix                     = random_string.suffix.result
   admin_username             = var.sql_admin_username
-
   sku_name                   = var.sql_database_sku
   zone_redundant             = var.sql_zone_redundant
   backup_retention_days      = var.sql_backup_retention_days
