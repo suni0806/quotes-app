@@ -84,32 +84,20 @@ jobs:
 
                   Set-Location test/infrastructure/platform
                   
-                  Write-Host "Fetching resource names from Terraform outputs..."
-                  $sqlServerName = terraform output -raw sql_server_name
+                  # Fetch outputs from Terraform
+                  $sqlServerFqdn = terraform output -raw sql_server_fqdn
                   $sqlDatabaseName = terraform output -raw sql_database_name
                   $appServiceName = terraform output -raw app_service_name
-                  $sqlServerFqdn = terraform output -raw sql_server_fqdn
 
-                  Write-Host "Getting access token for SQL Database..."
+                  # Get access token for SQL Database
                   $accessToken = (az account get-access-token --resource https://database.windows.net/ --query accessToken -o tsv)
 
-                  Write-Host "Granting access to App Service: $appServiceName on $sqlServerFqdn"
-                  
-                  # SQL script to create user and grant roles
-                  $sqlScript = "IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = '$appServiceName') BEGIN CREATE USER [$appServiceName] FROM EXTERNAL PROVIDER; ALTER ROLE db_datareader ADD MEMBER [$appServiceName]; ALTER ROLE db_datawriter ADD MEMBER [$appServiceName]; ALTER ROLE db_ddladmin ADD MEMBER [$appServiceName]; END"
-
-                  # Using a small PowerShell snippet to execute SQL
-                  $connString = "Server=tcp:$sqlServerFqdn,1433;Initial Catalog=$sqlDatabaseName;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-                  
-                  $conn = New-Object Microsoft.Data.SqlClient.SqlConnection($connString)
-                  $conn.AccessToken = $accessToken
-                  $conn.Open()
-                  $command = $conn.CreateCommand()
-                  $command.CommandText = $sqlScript
-                  $command.ExecuteNonQuery()
-                  $conn.Close()
-                  
-                  Write-Host "Successfully granted Entra ID access to SQL Database."
+                  # Run the grant script
+                  & "../../scripts/Grant-SqlAccess.ps1" `
+                    -SqlServerFqdn $sqlServerFqdn `
+                    -SqlDatabaseName $sqlDatabaseName `
+                    -AppServiceName $appServiceName `
+                    -AccessToken $accessToken
                 addSpnToEnvironment: true
 
 
