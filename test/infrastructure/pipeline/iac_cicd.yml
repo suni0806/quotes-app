@@ -13,15 +13,13 @@ parameters:
     type: object
     default:
 
-    - dev:
-      name: quotes_dev
+    - name: quotes_dev
       backendConfig: '--backend-config=environments/dev/backend.tfvars'
       varFile: '--var-file=environments/dev/variables.tfvars'
       subscription: '59533d6a-4284-4f40-8124-2b2dba74c4e0'
       tenantid: '64486216-28cf-43da-97ed-cfcb795b01ba'
 
-    - production:
-      name: quotes_production
+    - name: quotes_production
       backendConfig: '--backend-config=environments/production/backend.tfvars'
       varFile: '--var-file=environments/production/variables.tfvars'
       subscription: '59533d6a-4284-4f40-8124-2b2dba74c4e0'

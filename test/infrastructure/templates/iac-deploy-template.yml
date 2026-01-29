@@ -96,18 +96,9 @@ jobs:
                   Write-Host "Granting access to App Service: $appServiceName on $sqlServerFqdn"
                   
                   # SQL script to create user and grant roles
-                  $sqlScript = @"
-                  IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = '$appServiceName')
-                  BEGIN
-                      CREATE USER [$appServiceName] FROM EXTERNAL PROVIDER;
-                      ALTER ROLE db_datareader ADD MEMBER [$appServiceName];
-                      ALTER ROLE db_datawriter ADD MEMBER [$appServiceName];
-                      ALTER ROLE db_ddladmin ADD MEMBER [$appServiceName];
-                  END
-"@
+                  $sqlScript = "IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = '$appServiceName') BEGIN CREATE USER [$appServiceName] FROM EXTERNAL PROVIDER; ALTER ROLE db_datareader ADD MEMBER [$appServiceName]; ALTER ROLE db_datawriter ADD MEMBER [$appServiceName]; ALTER ROLE db_ddladmin ADD MEMBER [$appServiceName]; END"
 
-                  # Using a small PowerShell snippet to execute SQL without heavy dependencies
-                  # This assumes Microsoft.Data.SqlClient or System.Data.SqlClient is available (standard on Windows/PSCore)
+                  # Using a small PowerShell snippet to execute SQL
                   $connString = "Server=tcp:$sqlServerFqdn,1433;Initial Catalog=$sqlDatabaseName;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
                   
                   $conn = New-Object Microsoft.Data.SqlClient.SqlConnection($connString)
