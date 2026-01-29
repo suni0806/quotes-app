@@ -34,7 +34,7 @@ jobs:
           inlineScript: |
             cd test/infrastructure/platform
             terraform init ${{ parameters.backendConfig }}
-          addSpnToEnvironment: true
+          addSpnToEnvironment: false
 
       - task: AzureCLI@2
         displayName: 'Terraform Plan'
@@ -49,7 +49,7 @@ jobs:
               -var="tenant_id=${{ parameters.tenantid }}" ^
               -var="sql_admin_password=$(SQL_ADMIN_PASSWORD)" ^
               -out=${{ parameters.env }}.tfplan
-          addSpnToEnvironment: true
+          addSpnToEnvironment: false
         env:
           SQL_ADMIN_PASSWORD: $(SQL_ADMIN_PASSWORD)
 

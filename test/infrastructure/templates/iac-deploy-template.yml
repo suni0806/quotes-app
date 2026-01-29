@@ -44,7 +44,7 @@ jobs:
                 inlineScript: |
                   cd test/infrastructure/platform
                   terraform init ${{ parameters.backendConfig }}
-                addSpnToEnvironment: true
+                addSpnToEnvironment: false
 
             - task: AzureCLI@2
               displayName: 'Terraform Apply'
@@ -55,7 +55,7 @@ jobs:
                 inlineScript: |
                   cd test/infrastructure/platform
                   terraform apply -auto-approve ${{ parameters.env }}.tfplan
-                addSpnToEnvironment: true
+                addSpnToEnvironment: false
 
             - script: |
                 echo "=========================================="

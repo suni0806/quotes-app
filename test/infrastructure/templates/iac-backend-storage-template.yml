@@ -19,4 +19,4 @@ jobs:
             echo "Checking storage account: statefiletest001"
             echo "Checking container: tfstate"
             echo "Backend storage verification complete"
-          addSpnToEnvironment: true
+          addSpnToEnvironment: false
