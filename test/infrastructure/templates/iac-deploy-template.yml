@@ -35,20 +35,39 @@ jobs:
                 artifact: 'tfplan-${{ parameters.env }}'
                 path: 'infrastructure/platform'
 
-            - script: |
-                echo "Setting subscription..."
-                call az account set --subscription ${{ parameters.subscription }}
+            - task: AzurePowerShell@5
+              displayName: 'Terraform Init'
+              inputs:
+                azureSubscription: 'sc-1'
+                ScriptType: 'InlineScript'
+                Inline: |
+                  $token = Get-AzAccessToken -ResourceUrl "https://management.azure.com/"
+                  $env:ARM_ACCESS_TOKEN = $token.Token
+                  $env:ARM_SUBSCRIPTION_ID = (Get-AzContext).Subscription.Id
+                  $env:ARM_TENANT_ID = (Get-AzContext).Tenant.Id
+                  $env:ARM_CLIENT_ID = (Get-AzContext).Account.Id
 
-                cd test/infrastructure/platform
-                echo "Running Terraform Init..."
-                call terraform init ${{ parameters.backendConfig }}
-              displayName: 'Terraform Init (CMD)'
+                  Set-Location test/infrastructure/platform
+                  terraform init ${{ parameters.backendConfig }}
+                azurePowerShellVersion: 'LatestVersion'
+                pwsh: true
 
-            - script: |
-                cd test/infrastructure/platform
-                echo "Running Terraform Apply..."
-                call terraform apply -auto-approve ${{ parameters.env }}.tfplan
-              displayName: 'Terraform Apply (CMD)'
+            - task: AzurePowerShell@5
+              displayName: 'Terraform Apply'
+              inputs:
+                azureSubscription: 'sc-1'
+                ScriptType: 'InlineScript'
+                Inline: |
+                  $token = Get-AzAccessToken -ResourceUrl "https://management.azure.com/"
+                  $env:ARM_ACCESS_TOKEN = $token.Token
+                  $env:ARM_SUBSCRIPTION_ID = (Get-AzContext).Subscription.Id
+                  $env:ARM_TENANT_ID = (Get-AzContext).Tenant.Id
+                  $env:ARM_CLIENT_ID = (Get-AzContext).Account.Id
+
+                  Set-Location test/infrastructure/platform
+                  terraform apply -auto-approve ${{ parameters.env }}.tfplan
+                azurePowerShellVersion: 'LatestVersion'
+                pwsh: true
 
             - task: PowerShell@2
               displayName: 'Deployment Summary'
