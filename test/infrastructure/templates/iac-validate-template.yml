@@ -25,45 +25,26 @@ jobs:
         inputs:
           terraformVersion: '1.5.0'
 
-      - task: AzurePowerShell@5
-        displayName: 'Terraform Init'
-        inputs:
-          azureSubscription: 'sc-1'
-          ScriptType: 'InlineScript'
-          Inline: |
-            $token = Get-AzAccessToken -ResourceUrl "https://management.azure.com/"
-            $env:ARM_ACCESS_TOKEN = $token.Token
-            $env:ARM_SUBSCRIPTION_ID = (Get-AzContext).Subscription.Id
-            $env:ARM_TENANT_ID = (Get-AzContext).Tenant.Id
-            $env:ARM_CLIENT_ID = (Get-AzContext).Account.Id 
-            
-            Set-Location test/infrastructure/platform
-            terraform init ${{ parameters.backendConfig }}
-          azurePowerShellVersion: 'LatestVersion'
-          pwsh: true
+      - script: |
+          echo "Setting subscription..."
+          call az account set --subscription ${{ parameters.subscription }}
+          
+          cd test/infrastructure/platform
+          echo "Running Terraform Init..."
+          call terraform init ${{ parameters.backendConfig }}
+        displayName: 'Terraform Init (CMD)'
 
-      - task: AzurePowerShell@5
-        displayName: 'Terraform Plan'
-        inputs:
-          azureSubscription: 'sc-1'
-          ScriptType: 'InlineScript'
-          Inline: |
-            $token = Get-AzAccessToken -ResourceUrl "https://management.azure.com/"
-            $env:ARM_ACCESS_TOKEN = $token.Token
-            $env:ARM_SUBSCRIPTION_ID = (Get-AzContext).Subscription.Id
-            $env:ARM_TENANT_ID = (Get-AzContext).Tenant.Id
-            $env:ARM_CLIENT_ID = (Get-AzContext).Account.Id
-
-            Set-Location test/infrastructure/platform
-            terraform plan ${{ parameters.varFile }} `
-              -var="subscription_id=${{ parameters.subscription }}" `
-              -var="tenant_id=${{ parameters.tenantid }}" `
-              -var="sql_admin_password=$(SQL_ADMIN_PASSWORD)" `
-              -out=${{ parameters.env }}.tfplan
-            
-            Write-Host "##vso[task.setvariable variable=changeDetected;isOutput=true]true"
-          azurePowerShellVersion: 'LatestVersion'
-          pwsh: true
+      - script: |
+          cd test/infrastructure/platform
+          echo "Running Terraform Plan..."
+          call terraform plan ${{ parameters.varFile }} ^
+            -var="subscription_id=${{ parameters.subscription }}" ^
+            -var="tenant_id=${{ parameters.tenantid }}" ^
+            -var="sql_admin_password=%SQL_ADMIN_PASSWORD%" ^
+            -out=${{ parameters.env }}.tfplan
+          
+          echo "##vso[task.setvariable variable=changeDetected;isOutput=true]true"
+        displayName: 'Terraform Plan (CMD)'
         env:
           SQL_ADMIN_PASSWORD: $(SQL_ADMIN_PASSWORD)
 

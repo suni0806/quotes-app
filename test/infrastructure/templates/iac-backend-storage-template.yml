@@ -8,15 +8,9 @@ jobs:
     steps:
       - checkout: self
 
-      - task: AzurePowerShell@5
-        displayName: 'Check Storage Accounts'
-        inputs:
-          azureSubscription: 'sc-1'
-          ScriptType: 'InlineScript'
-          Inline: |
-            Write-Host "Verifying backend storage accounts..."
-            Write-Host "Checking storage account: statefiletest001"
-            Write-Host "Checking container: tfstate"
-            Write-Host "Backend storage verification complete"
-          azurePowerShellVersion: 'LatestVersion'
-          pwsh: true
+      - script: |
+          echo "Verifying backend storage accounts..."
+          echo "Checking storage account: statefiletest001"
+          call az storage account show --name statefiletest001 --resource-group rg-terraform-state
+          echo "Backend storage verification complete"
+        displayName: 'Check Storage Accounts (CMD)'
