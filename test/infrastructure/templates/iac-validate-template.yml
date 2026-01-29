@@ -25,31 +25,43 @@ jobs:
         inputs:
           terraformVersion: '1.5.0'
 
-      - task: AzureCLI@2
+      - task: AzurePowerShell@5
         displayName: 'Terraform Init'
         inputs:
           azureSubscription: 'sc-1'
-          scriptType: 'batch'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-            cd test/infrastructure/platform
+          ScriptType: 'InlineScript'
+          Inline: |
+            $token = Get-AzAccessToken -ResourceUrl "https://management.azure.com/"
+            $env:ARM_ACCESS_TOKEN = $token.Token
+            $env:ARM_SUBSCRIPTION_ID = (Get-AzContext).Subscription.Id
+            $env:ARM_TENANT_ID = (Get-AzContext).Tenant.Id
+            $env:ARM_CLIENT_ID = (Get-AzContext).Account.Id 
+            
+            Set-Location test/infrastructure/platform
             terraform init ${{ parameters.backendConfig }}
-          addSpnToEnvironment: false
+          azurePowerShellVersion: 'LatestVersion'
+          pwsh: true
 
-      - task: AzureCLI@2
+      - task: AzurePowerShell@5
         displayName: 'Terraform Plan'
         inputs:
           azureSubscription: 'sc-1'
-          scriptType: 'batch'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-            cd test/infrastructure/platform
-            terraform plan ${{ parameters.varFile }} ^
-              -var="subscription_id=${{ parameters.subscription }}" ^
-              -var="tenant_id=${{ parameters.tenantid }}" ^
-              -var="sql_admin_password=$(SQL_ADMIN_PASSWORD)" ^
+          ScriptType: 'InlineScript'
+          Inline: |
+            $token = Get-AzAccessToken -ResourceUrl "https://management.azure.com/"
+            $env:ARM_ACCESS_TOKEN = $token.Token
+            $env:ARM_SUBSCRIPTION_ID = (Get-AzContext).Subscription.Id
+            $env:ARM_TENANT_ID = (Get-AzContext).Tenant.Id
+            $env:ARM_CLIENT_ID = (Get-AzContext).Account.Id
+
+            Set-Location test/infrastructure/platform
+            terraform plan ${{ parameters.varFile }} `
+              -var="subscription_id=${{ parameters.subscription }}" `
+              -var="tenant_id=${{ parameters.tenantid }}" `
+              -var="sql_admin_password=$(SQL_ADMIN_PASSWORD)" `
               -out=${{ parameters.env }}.tfplan
-          addSpnToEnvironment: false
+          azurePowerShellVersion: 'LatestVersion'
+          pwsh: true
         env:
           SQL_ADMIN_PASSWORD: $(SQL_ADMIN_PASSWORD)
 

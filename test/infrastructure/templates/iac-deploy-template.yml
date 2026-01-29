@@ -35,27 +35,39 @@ jobs:
                 artifact: 'tfplan-${{ parameters.env }}'
                 path: 'infrastructure/platform'
 
-            - task: AzureCLI@2
+            - task: AzurePowerShell@5
               displayName: 'Terraform Init'
               inputs:
                 azureSubscription: 'sc-1'
-                scriptType: 'batch'
-                scriptLocation: 'inlineScript'
-                inlineScript: |
-                  cd test/infrastructure/platform
-                  terraform init ${{ parameters.backendConfig }}
-                addSpnToEnvironment: false
+                ScriptType: 'InlineScript'
+                Inline: |
+                  $token = Get-AzAccessToken -ResourceUrl "https://management.azure.com/"
+                  $env:ARM_ACCESS_TOKEN = $token.Token
+                  $env:ARM_SUBSCRIPTION_ID = (Get-AzContext).Subscription.Id
+                  $env:ARM_TENANT_ID = (Get-AzContext).Tenant.Id
+                  $env:ARM_CLIENT_ID = (Get-AzContext).Account.Id
 
-            - task: AzureCLI@2
+                  Set-Location test/infrastructure/platform
+                  terraform init ${{ parameters.backendConfig }}
+                azurePowerShellVersion: 'LatestVersion'
+                pwsh: true
+
+            - task: AzurePowerShell@5
               displayName: 'Terraform Apply'
               inputs:
                 azureSubscription: 'sc-1'
-                scriptType: 'batch'
-                scriptLocation: 'inlineScript'
-                inlineScript: |
-                  cd test/infrastructure/platform
+                ScriptType: 'InlineScript'
+                Inline: |
+                  $token = Get-AzAccessToken -ResourceUrl "https://management.azure.com/"
+                  $env:ARM_ACCESS_TOKEN = $token.Token
+                  $env:ARM_SUBSCRIPTION_ID = (Get-AzContext).Subscription.Id
+                  $env:ARM_TENANT_ID = (Get-AzContext).Tenant.Id
+                  $env:ARM_CLIENT_ID = (Get-AzContext).Account.Id
+
+                  Set-Location test/infrastructure/platform
                   terraform apply -auto-approve ${{ parameters.env }}.tfplan
-                addSpnToEnvironment: false
+                azurePowerShellVersion: 'LatestVersion'
+                pwsh: true
 
             - script: |
                 echo "=========================================="

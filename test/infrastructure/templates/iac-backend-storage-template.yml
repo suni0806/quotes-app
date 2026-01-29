@@ -8,15 +8,15 @@ jobs:
     steps:
       - checkout: self
 
-      - task: AzureCLI@2
+      - task: AzurePowerShell@5
         displayName: 'Check Storage Accounts'
         inputs:
           azureSubscription: 'sc-1'
-          scriptType: 'batch'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-            echo "Verifying backend storage accounts..."
-            echo "Checking storage account: statefiletest001"
-            echo "Checking container: tfstate"
-            echo "Backend storage verification complete"
-          addSpnToEnvironment: false
+          ScriptType: 'InlineScript'
+          Inline: |
+            Write-Host "Verifying backend storage accounts..."
+            Write-Host "Checking storage account: statefiletest001"
+            Write-Host "Checking container: tfstate"
+            Write-Host "Backend storage verification complete"
+          azurePowerShellVersion: 'LatestVersion'
+          pwsh: true
