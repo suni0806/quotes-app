@@ -1,7 +1,7 @@
 # Production Environment Variables
 environment        = "production"
 project_name       = "quotesapp"
-location           = "eastus"
+location           = "eastus2"
 sql_admin_username = "sqladmin"
 # sql_admin_password should be set via environment variable or passed at runtime
 
