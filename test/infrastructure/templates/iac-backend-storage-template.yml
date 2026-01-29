@@ -12,7 +12,7 @@ jobs:
         displayName: 'Check Storage Accounts'
         inputs:
           azureSubscription: 'sc-1'
-          scriptType: 'ps'
+          scriptType: 'pscore'
           scriptLocation: 'inlineScript'
           inlineScript: |
             Write-Host "Verifying backend storage accounts..."

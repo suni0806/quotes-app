@@ -39,7 +39,7 @@ jobs:
               displayName: 'Terraform Init'
               inputs:
                 azureSubscription: 'sc-1'
-                scriptType: 'ps'
+                scriptType: 'pscore'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
                   Set-Location test/infrastructure/platform
@@ -50,7 +50,7 @@ jobs:
               displayName: 'Terraform Apply'
               inputs:
                 azureSubscription: 'sc-1'
-                scriptType: 'ps'
+                scriptType: 'pscore'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
                   Set-Location test/infrastructure/platform
