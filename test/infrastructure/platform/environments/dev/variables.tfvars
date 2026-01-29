@@ -12,20 +12,20 @@ common_tags = {
   CostCenter  = "Engineering"
 }
 
-# App Service Configuration - Dev uses smaller SKU for cost savings
-app_service_sku                    = "B2"  # Basic tier for dev
-app_service_zone_balancing_enabled = false # Disable zone balancing in dev
+# App Service Configuration - Dev uses smallest available SKU
+app_service_sku                    = "B1"  # Smallest Basic tier
+app_service_zone_balancing_enabled = false 
 autoscale_min_instances            = 1
-autoscale_max_instances            = 2
+autoscale_max_instances            = 1
 autoscale_default_instances        = 1
 autoscale_cpu_threshold_high       = 80
 autoscale_cpu_threshold_low        = 20
 
 # SQL Database Configuration - Dev uses Basic tier
 sql_database_sku          = "Basic"
-sql_zone_redundant        = false # No zone redundancy in dev
+sql_zone_redundant        = false
 sql_backup_retention_days = 7
-sql_audit_retention_days  = 30 # Shorter retention in dev
+sql_audit_retention_days  = 7 # Reduced for quota/cost
 
 # Storage Configuration - Dev uses LRS for cost savings
 storage_account_tier     = "Standard"
