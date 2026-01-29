@@ -1,7 +1,7 @@
 # Dev Environment Variables
 environment        = "dev"
 project_name       = "quotesapp"
-location           = "eastus2"
+location           = "canadacentral"
 sql_admin_username = "sqladmin"
 # sql_admin_password should be set via environment variable or passed at runtime
 
