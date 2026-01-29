@@ -59,7 +59,7 @@ jobs:
             terraform plan ${{ parameters.varFile }} `
               -var="subscription_id=${{ parameters.subscription }}" `
               -var="tenant_id=${{ parameters.tenantid }}" `
-              -var="sql_admin_password=$(SQL_ADMIN_PASSWORD)" `
+              -var="sql_admin_password=$env:SQL_ADMIN_PASSWORD" `
               -out=${{ parameters.env }}.tfplan
             
             Write-Host "##vso[task.setvariable variable=changeDetected;isOutput=true]true"
