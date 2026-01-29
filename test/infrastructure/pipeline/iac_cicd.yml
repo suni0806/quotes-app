@@ -52,7 +52,7 @@ pr:
     - infrastructure
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: 'test'  # Self-hosted agent pool - change this to match your pool name in Azure DevOps
 
 stages:
   - stage: Build
