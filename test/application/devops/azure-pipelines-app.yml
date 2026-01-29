@@ -9,29 +9,14 @@ parameters:
     default:
       - name: dev
         timeoutInMinutes: 30
-        triggerBranch: dev
+        triggerBranch: main
         tagPrefix: "1.0."
-        azureServiceConnection: azure-quotes-app-dev-sc
-        appServiceName: app-quotes-random-dev
+        azureServiceConnection: sc-1
+        appServiceName: quotesapp-appsvc-dev-h3h4qv
         appServiceSlot: production
         nodeVersion: 18.x
-        workingDirectory: $(System.DefaultWorkingDirectory)/application
+        workingDirectory: $(System.DefaultWorkingDirectory)/test/application
         environment: quotes-app-dev
-        healthCheckRetries: 5
-        healthCheckDelay: 10
-        runSmokeTests: true
-        notifyOnFailure: true
-
-      - name: staging
-        timeoutInMinutes: 30
-        triggerBranch: staging
-        tagPrefix: "1.0."
-        azureServiceConnection: azure-quotes-app-staging-sc
-        appServiceName: app-quotes-random-staging
-        appServiceSlot: production
-        nodeVersion: 18.x
-        workingDirectory: $(System.DefaultWorkingDirectory)/application
-        environment: quotes-app-staging
         healthCheckRetries: 5
         healthCheckDelay: 10
         runSmokeTests: true
@@ -41,11 +26,11 @@ parameters:
         timeoutInMinutes: 30
         triggerBranch: main
         tagPrefix: "1.0."
-        azureServiceConnection: azure-quotes-app-prod-sc
-        appServiceName: app-quotes-random-prod
+        azureServiceConnection: sc-1
+        appServiceName: quotesapp-appsvc-production-h3h4qv
         appServiceSlot: production
         nodeVersion: 18.x
-        workingDirectory: $(System.DefaultWorkingDirectory)/application
+        workingDirectory: $(System.DefaultWorkingDirectory)/test/application
         environment: quotes-app-production
         healthCheckRetries: 10
         healthCheckDelay: 15
@@ -59,27 +44,23 @@ resources:
   repositories:
     - repository: quotes-app
       type: github
-      name: YourOrg/quotes-random-app
-      endpoint: YourGitHubConnection
+      name: suni0806/test
+      endpoint: github-connection # Assumed connection name
       trigger:
         batch: true
         branches:
           include:
-            - dev
-            - staging
             - main
         paths:
           include:
-            - application/**
+            - test/application/**
       pr:
         branches:
           include:
-            - dev
-            - staging
             - main
         paths:
           include:
-            - application/**
+            - test/application/**
 
 stages:
   # ===================================================================
