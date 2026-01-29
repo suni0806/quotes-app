@@ -58,15 +58,14 @@ jobs:
             # Set variables via environment variables for robustness
             $env:TF_VAR_subscription_id = "${{ parameters.subscription }}"
             $env:TF_VAR_tenant_id = "${{ parameters.tenantid }}"
-            $env:TF_VAR_sql_admin_password = $env:SQL_ADMIN_PASSWORD
+            $env:TF_VAR_subscription_id = "${{ parameters.subscription }}"
+            $env:TF_VAR_tenant_id = "${{ parameters.tenantid }}"
 
             Set-Location test/infrastructure/platform
             terraform plan ${{ parameters.varFile }} -out="${{ parameters.env }}.tfplan"
             
             Write-Host "##vso[task.setvariable variable=changeDetected;isOutput=true]true"
           addSpnToEnvironment: true
-        env:
-          SQL_ADMIN_PASSWORD: $(SQL_ADMIN_PASSWORD)
 
       - task: PublishPipelineArtifact@1
         displayName: 'Publish Plan'

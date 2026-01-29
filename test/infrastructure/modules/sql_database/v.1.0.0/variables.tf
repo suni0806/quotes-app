@@ -29,11 +29,7 @@ variable "admin_username" {
   sensitive   = true
 }
 
-variable "admin_password" {
-  description = "SQL Server administrator password"
-  type        = string
-  sensitive   = true
-}
+
 
 variable "private_endpoint_subnet_id" {
   description = "Subnet ID for private endpoint"

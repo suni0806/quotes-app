@@ -70,6 +70,59 @@ jobs:
                 addSpnToEnvironment: true
 
             - task: AzureCLI@2
+              displayName: 'Grant SQL Access to Managed Identity'
+              inputs:
+                azureSubscription: 'sc-1'
+                scriptType: 'pscore'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  $env:ARM_USE_OIDC = "true"
+                  $env:ARM_OIDC_TOKEN = $env:idToken
+                  $env:ARM_CLIENT_ID = $env:servicePrincipalId
+                  $env:ARM_TENANT_ID = $env:tenantId
+                  $env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)
+
+                  Set-Location test/infrastructure/platform
+                  
+                  Write-Host "Fetching resource names from Terraform outputs..."
+                  $sqlServerName = terraform output -raw sql_server_name
+                  $sqlDatabaseName = terraform output -raw sql_database_name
+                  $appServiceName = terraform output -raw app_service_name
+                  $sqlServerFqdn = terraform output -raw sql_server_fqdn
+
+                  Write-Host "Getting access token for SQL Database..."
+                  $accessToken = (az account get-access-token --resource https://database.windows.net/ --query accessToken -o tsv)
+
+                  Write-Host "Granting access to App Service: $appServiceName on $sqlServerFqdn"
+                  
+                  # SQL script to create user and grant roles
+                  $sqlScript = @"
+                  IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = '$appServiceName')
+                  BEGIN
+                      CREATE USER [$appServiceName] FROM EXTERNAL PROVIDER;
+                      ALTER ROLE db_datareader ADD MEMBER [$appServiceName];
+                      ALTER ROLE db_datawriter ADD MEMBER [$appServiceName];
+                      ALTER ROLE db_ddladmin ADD MEMBER [$appServiceName];
+                  END
+"@
+
+                  # Using a small PowerShell snippet to execute SQL without heavy dependencies
+                  # This assumes Microsoft.Data.SqlClient or System.Data.SqlClient is available (standard on Windows/PSCore)
+                  $connString = "Server=tcp:$sqlServerFqdn,1433;Initial Catalog=$sqlDatabaseName;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+                  
+                  $conn = New-Object Microsoft.Data.SqlClient.SqlConnection($connString)
+                  $conn.AccessToken = $accessToken
+                  $conn.Open()
+                  $command = $conn.CreateCommand()
+                  $command.CommandText = $sqlScript
+                  $command.ExecuteNonQuery()
+                  $conn.Close()
+                  
+                  Write-Host "Successfully granted Entra ID access to SQL Database."
+                addSpnToEnvironment: true
+
+
+            - task: AzureCLI@2
               displayName: 'Deployment Summary'
               inputs:
                 azureSubscription: 'sc-1'

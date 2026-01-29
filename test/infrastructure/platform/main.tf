@@ -71,7 +71,7 @@ module "sql_database" {
   project_name               = var.project_name
   suffix                     = random_string.suffix.result
   admin_username             = var.sql_admin_username
-  admin_password             = var.sql_admin_password
+
   sku_name                   = var.sql_database_sku
   zone_redundant             = var.sql_zone_redundant
   backup_retention_days      = var.sql_backup_retention_days
@@ -143,7 +143,7 @@ module "key_vault" {
   tenant_id           = data.azurerm_client_config.current.tenant_id
   object_id           = data.azurerm_client_config.current.object_id
 
-  sql_connection_string = "Server=tcp:${module.sql_database.sql_server_fqdn},1433;Initial Catalog=${module.sql_database.sql_database_name};Persist Security Info=False;User ID=${var.sql_admin_username};Password=${var.sql_admin_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  sql_connection_string = "Server=tcp:${module.sql_database.sql_server_fqdn},1433;Initial Catalog=${module.sql_database.sql_database_name};Authentication=\"Active Directory Managed Identity\";Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
   tags                  = azurerm_resource_group.main.tags
 
   depends_on = [module.sql_database]

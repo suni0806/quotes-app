@@ -19,16 +19,7 @@ variable "sql_admin_username" {
   default     = "sqladmin"
 }
 
-variable "sql_admin_password" {
-  description = "SQL Server administrator password"
-  type        = string
-  sensitive   = true
 
-  validation {
-    condition     = length(var.sql_admin_password) >= 12
-    error_message = "Password must be at least 12 characters long."
-  }
-}
 
 # ===================================================================
 # App Service Configuration

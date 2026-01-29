@@ -3,6 +3,13 @@
 # Creates SQL Server, Database, Private Endpoint, and Auditing
 # ===================================================================
 
+# Random password for SQL administrator
+resource "random_password" "admin" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
 # Azure SQL Server
 resource "azurerm_mssql_server" "main" {
   name                         = "${var.project_name}-sqlsvr-${var.environment}-${var.suffix}"
@@ -10,7 +17,7 @@ resource "azurerm_mssql_server" "main" {
   location                     = var.location
   version                      = "12.0"
   administrator_login          = var.admin_username
-  administrator_login_password = var.admin_password
+  administrator_login_password = random_password.admin.result
 
   public_network_access_enabled = false
   minimum_tls_version           = "1.2"
@@ -19,6 +26,8 @@ resource "azurerm_mssql_server" "main" {
     login_username = var.object_id
     object_id      = var.object_id
   }
+
+
 
   tags = var.tags
 }
