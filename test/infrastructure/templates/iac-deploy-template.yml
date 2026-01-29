@@ -93,7 +93,7 @@ jobs:
                   $accessToken = (az account get-access-token --resource https://database.windows.net/ --query accessToken -o tsv)
 
                   # Run the grant script
-                  & "../../scripts/Grant-SqlAccess.ps1" `
+                  & "../scripts/Grant-SqlAccess.ps1" `
                     -SqlServerFqdn $sqlServerFqdn `
                     -SqlDatabaseName $sqlDatabaseName `
                     -AppServiceName $appServiceName `
