@@ -11,6 +11,10 @@ resource "random_string" "suffix" {
   length  = 6
   special = false
   upper   = false
+  keepers = {
+    # Changing the location will force a new suffix and fresh resource names
+    location = var.location
+  }
 }
 
 # Resource Group
