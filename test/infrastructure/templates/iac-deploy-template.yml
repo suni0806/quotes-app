@@ -39,10 +39,10 @@ jobs:
               displayName: 'Terraform Init'
               inputs:
                 azureSubscription: 'sc-1'
-                scriptType: 'bash'
+                scriptType: 'ps'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
-                  cd infrastructure/platform
+                  Set-Location infrastructure/platform
                   terraform init ${{ parameters.backendConfig }}
                 addSpnToEnvironment: true
 
@@ -50,10 +50,10 @@ jobs:
               displayName: 'Terraform Apply'
               inputs:
                 azureSubscription: 'sc-1'
-                scriptType: 'bash'
+                scriptType: 'ps'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
-                  cd infrastructure/platform
+                  Set-Location infrastructure/platform
                   terraform apply -auto-approve ${{ parameters.env }}.tfplan
                 addSpnToEnvironment: true
 

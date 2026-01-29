@@ -12,11 +12,11 @@ jobs:
         displayName: 'Check Storage Accounts'
         inputs:
           azureSubscription: 'sc-1'
-          scriptType: 'bash'
+          scriptType: 'ps'
           scriptLocation: 'inlineScript'
           inlineScript: |
-            echo "Verifying backend storage accounts..."
-            echo "Checking storage account: statefiletest001"
-            echo "Checking container: tfstate"
-            echo "Backend storage verification complete"
+            Write-Host "Verifying backend storage accounts..."
+            Write-Host "Checking storage account: statefiletest001"
+            Write-Host "Checking container: tfstate"
+            Write-Host "Backend storage verification complete"
           addSpnToEnvironment: true
