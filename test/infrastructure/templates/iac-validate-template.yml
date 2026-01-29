@@ -25,14 +25,16 @@ jobs:
         inputs:
           terraformVersion: '1.5.0'
 
-      - script: |
-          echo "Setting subscription..."
-          call az account set --subscription ${{ parameters.subscription }}
-          
-          cd test/infrastructure/platform
-          echo "Running Terraform Init..."
-          call terraform init ${{ parameters.backendConfig }}
-        displayName: 'Terraform Init (CMD)'
+      - task: AzureCLI@2
+        displayName: 'Terraform Init'
+        inputs:
+          azureSubscription: 'sc-1'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            Set-Location test/infrastructure/platform
+            terraform init ${{ parameters.backendConfig }}
+          addSpnToEnvironment: true
 
       - script: |
           cd test/infrastructure/platform

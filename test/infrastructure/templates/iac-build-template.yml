@@ -15,35 +15,38 @@ jobs:
         inputs:
           terraformVersion: '1.5.0'
 
-      - task: PowerShell@2
+      - task: AzureCLI@2
         displayName: 'Format Check'
         inputs:
-          targetType: 'inline'
-          script: |
+          azureSubscription: 'sc-1'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
             Write-Host "=========================================="
             Write-Host "  Building Infrastructure for: ${{ parameters.appname }}"
             Write-Host "=========================================="
             Set-Location test/infrastructure/platform
             terraform fmt -check -recursive
-          pwsh: true
         continueOnError: true
 
-      - task: PowerShell@2
+      - task: AzureCLI@2
         displayName: 'Validate Terraform'
         inputs:
-          targetType: 'inline'
-          script: |
+          azureSubscription: 'sc-1'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
             Set-Location test/infrastructure/platform
             terraform init -backend=false
             terraform validate
-          pwsh: true
 
-      - task: PowerShell@2
+      - task: AzureCLI@2
         name: backendoutputVars
         displayName: 'Set Output Variables'
         inputs:
-          targetType: 'inline'
-          script: |
+          azureSubscription: 'sc-1'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
             Write-Host "Build completed successfully"
             Write-Host "##vso[task.setvariable variable=backendchange;isOutput=true]true"
-          pwsh: true
