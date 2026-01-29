@@ -126,7 +126,9 @@ module "app_service" {
   autoscale_cpu_threshold_low    = var.autoscale_cpu_threshold_low
   app_insights_connection_string = module.monitoring.app_insights_connection_string
   sql_connection_secret_id       = module.key_vault.sql_connection_secret_id
-  app_service_subnet_id          = module.networking.app_service_subnet_id
+  # Free tier (F1) does not support VNet integration on Linux
+  app_service_subnet_id          = var.app_service_sku == "F1" ? null : module.networking.app_service_subnet_id
+  always_on                      = var.app_service_always_on
   tags                           = azurerm_resource_group.main.tags
 
   depends_on = [module.monitoring, module.key_vault]

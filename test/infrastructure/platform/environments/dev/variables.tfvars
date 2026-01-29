@@ -12,8 +12,9 @@ common_tags = {
   CostCenter  = "Engineering"
 }
 
-# App Service Configuration - Dev uses smallest available SKU
-app_service_sku                    = "B1"  # Smallest Basic tier
+# App Service Configuration - Dev uses Free Tier
+app_service_sku                    = "F1"  # Free Tier
+app_service_always_on              = false # Required for Free/Shared tiers
 app_service_zone_balancing_enabled = false 
 autoscale_min_instances            = 1
 autoscale_max_instances            = 1

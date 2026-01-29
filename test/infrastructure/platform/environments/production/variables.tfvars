@@ -12,24 +12,24 @@ common_tags = {
   CostCenter  = "Engineering"
   Compliance  = "Required"
 }
-# App Service Configuration - Production downgraded to basic to bypass quota
-app_service_sku                    = "B1"
-app_service_zone_balancing_enabled = false
-autoscale_min_instances            = 1
-autoscale_max_instances            = 1
-autoscale_default_instances        = 1
+# App Service Configuration - Production uses Premium tier with zone balancing
+app_service_sku                    = "P1v2" # Premium tier for production
+app_service_zone_balancing_enabled = true   # Enable zone balancing for HA
+autoscale_min_instances            = 2
+autoscale_max_instances            = 10
+autoscale_default_instances        = 3
 autoscale_cpu_threshold_high       = 70
 autoscale_cpu_threshold_low        = 30
 
-# SQL Database Configuration - Production downgraded to basic to bypass quota
-sql_database_sku          = "Basic"
-sql_zone_redundant        = false
-sql_backup_retention_days = 7
-sql_audit_retention_days  = 7
+# SQL Database Configuration - Production uses Premium tier with zone redundancy
+sql_database_sku          = "P1"
+sql_zone_redundant        = true # Enable zone redundancy for HA
+sql_backup_retention_days = 35
+sql_audit_retention_days  = 90
 
-# Storage Configuration - Production downgraded to LRS
+# Storage Configuration - Production uses GRS for geo-redundancy
 storage_account_tier     = "Standard"
-storage_replication_type = "LRS"
+storage_replication_type = "GRS"
 
 # Networking Configuration
 vnet_address_space             = ["10.0.0.0/16"]

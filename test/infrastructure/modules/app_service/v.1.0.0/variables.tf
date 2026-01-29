@@ -86,3 +86,8 @@ variable "autoscale_cpu_threshold_low" {
   type        = number
   default     = 25
 }
+variable "always_on" {
+  description = "Enable Always On for App Service (not supported on Free/Shared tiers)"
+  type        = bool
+  default     = true
+}

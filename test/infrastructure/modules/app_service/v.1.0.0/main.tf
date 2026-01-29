@@ -29,7 +29,7 @@ resource "azurerm_linux_web_app" "main" {
   }
 
   site_config {
-    always_on = true
+    always_on = var.always_on
 
     application_stack {
       node_version = "18-lts"

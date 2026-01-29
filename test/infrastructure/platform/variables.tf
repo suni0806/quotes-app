@@ -137,3 +137,8 @@ variable "log_analytics_retention_days" {
   type        = number
   default     = 30
 }
+variable "app_service_always_on" {
+  description = "Enable Always On for App Service (not supported on Free/Shared tiers)"
+  type        = bool
+  default     = true
+}
