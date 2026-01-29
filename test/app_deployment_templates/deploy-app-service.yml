@@ -43,52 +43,72 @@ jobs:
                     runtimeStack: 'NODE|18-lts'
                     startUpCommand: 'node server.js'
 
-                - bash: |
-                    echo "Waiting for application to start..."
-                    sleep ${{ env.healthCheckDelay }}
+                - powershell: |
+                    Write-Host "Waiting for application to start..."
+                    Start-Sleep -Seconds ${{ env.healthCheckDelay }}
                   displayName: 'Wait for Deployment'
+                  pwsh: true
 
-                - bash: |
-                    HEALTH_URL="https://${{ env.appServiceName }}.azurewebsites.net/health"
-                    echo "Health Check: $HEALTH_URL"
+                - powershell: |
+                    $HEALTH_URL = "https://${{ env.appServiceName }}.azurewebsites.net/health"
+                    Write-Host "Health Check: $HEALTH_URL"
                     
-                    for i in $(seq 1 ${{ env.healthCheckRetries }}); do
-                      STATUS=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_URL)
-                      if [ $STATUS -eq 200 ]; then
-                        echo "✓ Health check passed (HTTP $STATUS)"
-                        exit 0
-                      fi
-                      echo "Attempt $i/${{ env.healthCheckRetries }}: HTTP $STATUS, retrying in ${{ env.healthCheckDelay }}s..."
-                      sleep ${{ env.healthCheckDelay }}
-                    done
+                    for ($i = 1; $i -le ${{ env.healthCheckRetries }}; $i++) {
+                      try {
+                        $response = Invoke-WebRequest -Uri $HEALTH_URL -UseBasicParsing -TimeoutSec 10
+                        $STATUS = [int]$response.StatusCode
+                        if ($STATUS -eq 200) {
+                          Write-Host "✓ Health check passed (HTTP $STATUS)"
+                          exit 0
+                        }
+                      } catch {
+                        $STATUS = $_.Exception.Response.StatusCode.value__
+                        if (!$STATUS) { $STATUS = "Error" }
+                      }
+                      Write-Host "Attempt $i/${{ env.healthCheckRetries }}: HTTP $STATUS, retrying in ${{ env.healthCheckDelay }}s..."
+                      Start-Sleep -Seconds ${{ env.healthCheckDelay }}
+                    }
                     
-                    echo "✗ Health check failed after ${{ env.healthCheckRetries }} attempts"
+                    Write-Error "✗ Health check failed after ${{ env.healthCheckRetries }} attempts"
                     exit 1
                   displayName: 'Health Check'
+                  pwsh: true
 
-                - bash: |
-                    QUOTE_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/quote"
-                    echo "API Smoke Test: $QUOTE_URL"
+                - powershell: |
+                    $QUOTE_URL = "https://${{ env.appServiceName }}.azurewebsites.net/api/quote"
+                    Write-Host "API Smoke Test: $QUOTE_URL"
                     
-                    RESPONSE=$(curl -s $QUOTE_URL)
-                    if echo "$RESPONSE" | grep -q "quote"; then
-                      echo "✓ API smoke test passed"
-                      echo "Sample response: $RESPONSE" | head -c 200
-                      exit 0
-                    else
-                      echo "✗ API smoke test failed"
-                      echo "Response: $RESPONSE"
+                    try {
+                      $response = Invoke-WebRequest -Uri $QUOTE_URL -UseBasicParsing
+                      $content = $response.Content
+                      if ($content -like "*quote*") {
+                        Write-Host "✓ API smoke test passed"
+                        Write-Host "Sample response: $($content.Substring(0, [Math]::Min(200, $content.Length)))"
+                        exit 0
+                      } else {
+                        Write-Error "✗ API smoke test failed: Quote property not found"
+                        Write-Host "Response: $content"
+                        exit 1
+                      }
+                    } catch {
+                      Write-Error "✗ API smoke test failed: $($_.Exception.Message)"
                       exit 1
-                    fi
+                    }
                   displayName: 'API Smoke Test'
                   condition: and(succeeded(), eq('${{ env.runSmokeTests }}', 'true'))
+                  pwsh: true
 
-                - bash: |
-                    STATS_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/stats"
-                    echo "Stats Check: $STATS_URL"
+                - powershell: |
+                    $STATS_URL = "https://${{ env.appServiceName }}.azurewebsites.net/api/stats"
+                    Write-Host "Stats Check: $STATS_URL"
                     
-                    RESPONSE=$(curl -s $STATS_URL)
-                    echo "Database Stats: $RESPONSE"
+                    try {
+                      $response = Invoke-WebRequest -Uri $STATS_URL -UseBasicParsing
+                      Write-Host "Database Stats: $($response.Content)"
+                    } catch {
+                      Write-Host "Warning: Could not fetch stats: $($_.Exception.Message)"
+                    }
                   displayName: 'Database Stats Check'
                   condition: always()
                   continueOnError: true
+                  pwsh: true
