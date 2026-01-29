@@ -69,12 +69,16 @@ jobs:
                 azurePowerShellVersion: 'LatestVersion'
                 pwsh: true
 
-            - script: |
-                echo "=========================================="
-                echo "  Deployment Summary"
-                echo "=========================================="
-                echo "Environment: ${{ parameters.env }}"
-                echo "Application: ${{ parameters.appname }}"
-                echo "Subscription: ${{ parameters.subscription }}"
-                echo "=========================================="
+            - task: PowerShell@2
               displayName: 'Deployment Summary'
+              inputs:
+                targetType: 'inline'
+                script: |
+                  Write-Host "=========================================="
+                  Write-Host "  Deployment Summary"
+                  Write-Host "=========================================="
+                  Write-Host "Environment: ${{ parameters.env }}"
+                  Write-Host "Application: ${{ parameters.appname }}"
+                  Write-Host "Subscription: ${{ parameters.subscription }}"
+                  Write-Host "=========================================="
+                pwsh: true
