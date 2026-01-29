@@ -32,14 +32,14 @@ resource "azurerm_resource_group" "main" {
 module "networking" {
   source = "../../modules/networking/v.1.0.0"
 
-  resource_group_name              = azurerm_resource_group.main.name
-  location                         = azurerm_resource_group.main.location
-  environment                      = var.environment
-  project_name                     = var.project_name
-  vnet_address_space               = var.vnet_address_space
-  app_service_subnet_prefix        = var.app_service_subnet_prefix
-  private_endpoint_subnet_prefix   = var.private_endpoint_subnet_prefix
-  tags                             = azurerm_resource_group.main.tags
+  resource_group_name            = azurerm_resource_group.main.name
+  location                       = azurerm_resource_group.main.location
+  environment                    = var.environment
+  project_name                   = var.project_name
+  vnet_address_space             = var.vnet_address_space
+  app_service_subnet_prefix      = var.app_service_subnet_prefix
+  private_endpoint_subnet_prefix = var.private_endpoint_subnet_prefix
+  tags                           = azurerm_resource_group.main.tags
 }
 
 # ===================================================================
@@ -65,24 +65,24 @@ module "storage" {
 module "sql_database" {
   source = "../../modules/sql_database/v.1.0.0"
 
-  resource_group_name         = azurerm_resource_group.main.name
-  location                    = azurerm_resource_group.main.location
-  environment                 = var.environment
-  project_name                = var.project_name
-  suffix                      = random_string.suffix.result
-  admin_username              = var.sql_admin_username
-  admin_password              = var.sql_admin_password
-  sku_name                    = var.sql_database_sku
-  zone_redundant              = var.sql_zone_redundant
-  backup_retention_days       = var.sql_backup_retention_days
-  audit_retention_days        = var.sql_audit_retention_days
-  private_endpoint_subnet_id  = module.networking.private_endpoint_subnet_id
-  private_dns_zone_id         = module.networking.private_dns_zone_id
-  tenant_id                   = data.azurerm_client_config.current.tenant_id
-  object_id                   = data.azurerm_client_config.current.object_id
-  audit_storage_endpoint      = module.storage.primary_blob_endpoint
-  audit_storage_access_key    = module.storage.primary_access_key
-  tags                        = azurerm_resource_group.main.tags
+  resource_group_name        = azurerm_resource_group.main.name
+  location                   = azurerm_resource_group.main.location
+  environment                = var.environment
+  project_name               = var.project_name
+  suffix                     = random_string.suffix.result
+  admin_username             = var.sql_admin_username
+  admin_password             = var.sql_admin_password
+  sku_name                   = var.sql_database_sku
+  zone_redundant             = var.sql_zone_redundant
+  backup_retention_days      = var.sql_backup_retention_days
+  audit_retention_days       = var.sql_audit_retention_days
+  private_endpoint_subnet_id = module.networking.private_endpoint_subnet_id
+  private_dns_zone_id        = module.networking.private_dns_zone_id
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  object_id                  = data.azurerm_client_config.current.object_id
+  audit_storage_endpoint     = module.storage.primary_blob_endpoint
+  audit_storage_access_key   = module.storage.primary_access_key
+  tags                       = azurerm_resource_group.main.tags
 
   depends_on = [module.networking, module.storage]
 }
@@ -94,12 +94,12 @@ module "sql_database" {
 module "monitoring" {
   source = "../../modules/monitoring/v.1.0.0"
 
-  resource_group_name           = azurerm_resource_group.main.name
-  location                      = azurerm_resource_group.main.location
-  environment                   = var.environment
-  project_name                  = var.project_name
-  log_analytics_retention_days  = var.log_analytics_retention_days
-  tags                          = azurerm_resource_group.main.tags
+  resource_group_name          = azurerm_resource_group.main.name
+  location                     = azurerm_resource_group.main.location
+  environment                  = var.environment
+  project_name                 = var.project_name
+  log_analytics_retention_days = var.log_analytics_retention_days
+  tags                         = azurerm_resource_group.main.tags
 }
 
 # ===================================================================
@@ -136,15 +136,15 @@ module "app_service" {
 module "key_vault" {
   source = "../../modules/key_vault/v.1.0.0"
 
-  resource_group_name       = azurerm_resource_group.main.name
-  location                  = azurerm_resource_group.main.location
-  project_name              = var.project_name
-  suffix                    = random_string.suffix.result
-  tenant_id                 = data.azurerm_client_config.current.tenant_id
-  object_id                 = data.azurerm_client_config.current.object_id
-  app_service_principal_id  = module.app_service.app_service_principal_id
-  sql_connection_string     = "Server=tcp:${module.sql_database.sql_server_fqdn},1433;Initial Catalog=${module.sql_database.sql_database_name};Persist Security Info=False;User ID=${var.sql_admin_username};Password=${var.sql_admin_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-  tags                      = azurerm_resource_group.main.tags
+  resource_group_name      = azurerm_resource_group.main.name
+  location                 = azurerm_resource_group.main.location
+  project_name             = var.project_name
+  suffix                   = random_string.suffix.result
+  tenant_id                = data.azurerm_client_config.current.tenant_id
+  object_id                = data.azurerm_client_config.current.object_id
+  app_service_principal_id = module.app_service.app_service_principal_id
+  sql_connection_string    = "Server=tcp:${module.sql_database.sql_server_fqdn},1433;Initial Catalog=${module.sql_database.sql_database_name};Persist Security Info=False;User ID=${var.sql_admin_username};Password=${var.sql_admin_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  tags                     = azurerm_resource_group.main.tags
 
   depends_on = [module.sql_database, module.app_service]
 }
