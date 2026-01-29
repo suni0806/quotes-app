@@ -29,10 +29,10 @@ jobs:
         displayName: 'Terraform Init'
         inputs:
           azureSubscription: 'sc-1'
-          scriptType: 'pscore'
+          scriptType: 'batch'
           scriptLocation: 'inlineScript'
           inlineScript: |
-            Set-Location test/infrastructure/platform
+            cd test/infrastructure/platform
             terraform init ${{ parameters.backendConfig }}
           addSpnToEnvironment: true
 
@@ -40,14 +40,14 @@ jobs:
         displayName: 'Terraform Plan'
         inputs:
           azureSubscription: 'sc-1'
-          scriptType: 'pscore'
+          scriptType: 'batch'
           scriptLocation: 'inlineScript'
           inlineScript: |
-            Set-Location test/infrastructure/platform
-            terraform plan ${{ parameters.varFile }} `
-              -var="subscription_id=${{ parameters.subscription }}" `
-              -var="tenant_id=${{ parameters.tenantid }}" `
-              -var="sql_admin_password=$(SQL_ADMIN_PASSWORD)" `
+            cd test/infrastructure/platform
+            terraform plan ${{ parameters.varFile }} ^
+              -var="subscription_id=${{ parameters.subscription }}" ^
+              -var="tenant_id=${{ parameters.tenantid }}" ^
+              -var="sql_admin_password=$(SQL_ADMIN_PASSWORD)" ^
               -out=${{ parameters.env }}.tfplan
           addSpnToEnvironment: true
         env:
