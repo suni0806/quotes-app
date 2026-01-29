@@ -28,17 +28,18 @@ jobs:
             inputs:
               versionSpec: ${{ env.nodeVersion }}
 
-          - script: |
-              echo "Installing dependencies..."
-              npm ci
-              echo "Build completed successfully"
+          - task: Npm@1
             displayName: 'Install Dependencies'
-            workingDirectory: ${{ env.workingDirectory }}
+            inputs:
+              command: 'ci'
+              workingDir: ${{ env.workingDirectory }}
 
-          - script: |
-              npm test || echo "Tests completed with warnings"
+          - task: Npm@1
             displayName: 'Run Tests'
-            workingDirectory: ${{ env.workingDirectory }}
+            inputs:
+              command: 'custom'
+              customCommand: 'test'
+              workingDir: ${{ env.workingDirectory }}
             continueOnError: true
 
           - task: ArchiveFiles@2
