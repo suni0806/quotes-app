@@ -99,9 +99,9 @@ stages:
 
   # Production Environment
   - stage: Validate_quotes_production
-    dependsOn: [Build, Backend_Storage, DeployToquotes_dev]
+    dependsOn: DeployToquotes_dev
     # Runs after Dev Deploy (even if Dev Deploy was skipped due to no changes)
-    condition: and(succeeded('Build'), not(failed('DeployToquotes_dev')), not(canceled()))
+    condition: and(not(failed('DeployToquotes_dev')), not(canceled()))
     displayName: Validate_quotes_production
     jobs:
       - template: ../templates/iac-validate-template.yml
