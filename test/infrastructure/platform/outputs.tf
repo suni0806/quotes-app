@@ -17,3 +17,8 @@ output "sql_server_fqdn" {
   description = "The FQDN of the SQL Server"
   value       = module.sql_database.sql_server_fqdn
 }
+
+output "resource_group_name" {
+  description = "The name of the resource group"
+  value       = azurerm_resource_group.main.name
+}
