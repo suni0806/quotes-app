@@ -64,35 +64,69 @@ stages:
       parameters:
         environments: ${{ parameters.environments }}
 
-  - ${{ each environment in parameters.environments }}:
-    - stage: Validate_${{ environment.name }}
-      dependsOn: [Build, Backend_Storage]
-      condition: and(succeeded('Build'), not(failed('Backend_Storage')), not(canceled()) )
-      displayName: Validate_${{ environment.name }}
-      jobs:
+  # Development Environment
+  - stage: Validate_quotes_dev
+    dependsOn: [Build, Backend_Storage]
+    condition: and(succeeded('Build'), not(failed('Backend_Storage')), not(canceled()))
+    displayName: Validate_quotes_dev
+    jobs:
       - template: ../templates/iac-validate-template.yml
         parameters:
-          env: '${{ environment.name }}'
-          backendConfig: '${{ environment.backendConfig }}'
-          varFile: '${{ environment.varFile }}'
-          subscription: '${{ environment.subscription }}'
-          tenantid: '${{ environment.tenantid }}'
+          env: 'quotes_dev'
+          backendConfig: '--backend-config=environments/dev/backend.tfvars'
+          varFile: '--var-file=environments/dev/variables.tfvars'
+          subscription: '59533d6a-4284-4f40-8124-2b2dba74c4e0'
+          tenantid: '64486216-28cf-43da-97ed-cfcb795b01ba'
           cloud_provider: '${{ parameters.cloud_provider }}'
           appname: '$(app_name)'
 
-    - stage: DeployTo${{ environment.name }}
-      dependsOn: Validate_${{ environment.name }}
-      displayName: DeployTo_${{ environment.name }}
-      variables:
-        changeVar: $[ dependencies.Validate_${{ environment.name }}.outputs['validate_${{ environment.name }}.outputVars.changeDetected']]
-      condition: and(succeeded('Validate_${{ environment.name }}'), eq(variables['Build.SourceBranch'], 'refs/heads/main'), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['changeVar'], 'true'))
-      jobs:
+  - stage: DeployToquotes_dev
+    dependsOn: Validate_quotes_dev
+    displayName: DeployTo_quotes_dev
+    variables:
+      changeVar: $[ dependencies.Validate_quotes_dev.outputs['validate_quotes_dev.outputVars.changeDetected']]
+    condition: and(succeeded('Validate_quotes_dev'), eq(variables['Build.SourceBranch'], 'refs/heads/main'), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['changeVar'], 'true'))
+    jobs:
       - template: ../templates/iac-deploy-template.yml
         parameters:
-          env: '${{ environment.name }}'
-          backendConfig: '${{ environment.backendConfig }}'
-          varFile: '${{ environment.varFile }}'
-          subscription: '${{ environment.subscription }}'
-          tenantid: '${{ environment.tenantid }}'
+          env: 'quotes_dev'
+          backendConfig: '--backend-config=environments/dev/backend.tfvars'
+          varFile: '--var-file=environments/dev/variables.tfvars'
+          subscription: '59533d6a-4284-4f40-8124-2b2dba74c4e0'
+          tenantid: '64486216-28cf-43da-97ed-cfcb795b01ba'
+          cloud_provider: '${{ parameters.cloud_provider }}'
+          appname: '$(app_name)'
+
+  # Production Environment
+  - stage: Validate_quotes_production
+    dependsOn: [Build, Backend_Storage, DeployToquotes_dev]
+    # Runs after Dev Deploy (even if Dev Deploy was skipped due to no changes)
+    condition: and(succeeded('Build'), not(failed('DeployToquotes_dev')), not(canceled()))
+    displayName: Validate_quotes_production
+    jobs:
+      - template: ../templates/iac-validate-template.yml
+        parameters:
+          env: 'quotes_production'
+          backendConfig: '--backend-config=environments/production/backend.tfvars'
+          varFile: '--var-file=environments/production/variables.tfvars'
+          subscription: '59533d6a-4284-4f40-8124-2b2dba74c4e0'
+          tenantid: '64486216-28cf-43da-97ed-cfcb795b01ba'
+          cloud_provider: '${{ parameters.cloud_provider }}'
+          appname: '$(app_name)'
+
+  - stage: DeployToquotes_production
+    dependsOn: Validate_quotes_production
+    displayName: DeployTo_quotes_production
+    variables:
+      changeVar: $[ dependencies.Validate_quotes_production.outputs['validate_quotes_production.outputVars.changeDetected']]
+    condition: and(succeeded('Validate_quotes_production'), eq(variables['Build.SourceBranch'], 'refs/heads/main'), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['changeVar'], 'true'))
+    jobs:
+      - template: ../templates/iac-deploy-template.yml
+        parameters:
+          env: 'quotes_production'
+          backendConfig: '--backend-config=environments/production/backend.tfvars'
+          varFile: '--var-file=environments/production/variables.tfvars'
+          subscription: '59533d6a-4284-4f40-8124-2b2dba74c4e0'
+          tenantid: '64486216-28cf-43da-97ed-cfcb795b01ba'
           cloud_provider: '${{ parameters.cloud_provider }}'
           appname: '$(app_name)'
