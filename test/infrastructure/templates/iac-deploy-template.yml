@@ -33,7 +33,7 @@ jobs:
               displayName: 'Download Plan'
               inputs:
                 artifact: 'tfplan-${{ parameters.env }}'
-                path: 'infrastructure/platform'
+                path: 'test/infrastructure/platform'
 
             - task: AzureCLI@2
               displayName: 'Terraform Init'

@@ -71,6 +71,6 @@ jobs:
       - task: PublishPipelineArtifact@1
         displayName: 'Publish Plan'
         inputs:
-          targetPath: 'infrastructure/platform/${{ parameters.env }}.tfplan'
+          targetPath: 'test/infrastructure/platform/${{ parameters.env }}.tfplan'
           artifact: 'tfplan-${{ parameters.env }}'
           publishLocation: 'pipeline'
