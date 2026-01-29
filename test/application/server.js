@@ -18,7 +18,7 @@ if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
     .setAutoCollectConsole(true)
     .setUseDiskRetryCaching(true)
     .start();
-  
+
   console.log('Application Insights initialized');
 }
 
@@ -44,42 +44,15 @@ let pool;
 // Initialize database connection
 async function initializeDatabase() {
   try {
+    console.log('Using database connection string:', sqlConfig.connectionString.replace(/Password=[^;]+/, 'Password=***'));
     pool = await sql.connect(sqlConfig);
     console.log('Connected to Azure SQL Database');
-    
-    // Ensure the Quotes table exists
-    await ensureTableExists();
   } catch (err) {
     console.error('Database connection failed:', err);
     throw err;
   }
 }
 
-// Ensure the Quotes table exists
-async function ensureTableExists() {
-  try {
-    const query = `
-      IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Quotes')
-      BEGIN
-        CREATE TABLE Quotes (
-          Id INT PRIMARY KEY IDENTITY(1,1),
-          QuoteText NVARCHAR(MAX) NOT NULL,
-          Author NVARCHAR(255) NOT NULL,
-          CreatedAt DATETIME2 DEFAULT GETUTCDATE()
-        );
-        
-        -- Create index for performance
-        CREATE INDEX IX_Quotes_CreatedAt ON Quotes(CreatedAt);
-      END
-    `;
-    
-    await pool.request().query(query);
-    console.log('Quotes table verified/created');
-  } catch (err) {
-    console.error('Error ensuring table exists:', err);
-    throw err;
-  }
-}
 
 // Middleware
 app.use(express.json());
@@ -87,7 +60,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check endpoint for Azure App Service
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
+  res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString()
   });
@@ -102,20 +75,20 @@ app.get('/api/quote', async (req, res) => {
 
     // Query for a random quote
     const result = await pool.request().query(`
-      SELECT TOP 1 Id, QuoteText, Author
+      SELECT TOP 1 Id, Text, Author
       FROM Quotes
       ORDER BY NEWID()
     `);
 
     if (result.recordset.length === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         error: 'No quotes found in database',
         message: 'Please seed the database with quotes first'
       });
     }
 
     const quote = result.recordset[0];
-    
+
     // Track custom telemetry
     if (appInsights.defaultClient) {
       appInsights.defaultClient.trackEvent({
@@ -129,20 +102,20 @@ app.get('/api/quote', async (req, res) => {
 
     res.json({
       id: quote.Id,
-      text: quote.QuoteText,
+      text: quote.Text,
       author: quote.Author
     });
   } catch (err) {
     console.error('Error fetching quote:', err);
-    
+
     // Track exception
     if (appInsights.defaultClient) {
       appInsights.defaultClient.trackException({ exception: err });
     }
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       error: 'Failed to fetch quote',
-      message: err.message 
+      message: err.message
     });
   }
 });
@@ -163,9 +136,9 @@ app.get('/api/stats', async (req, res) => {
     });
   } catch (err) {
     console.error('Error fetching stats:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to fetch statistics',
-      message: err.message 
+      message: err.message
     });
   }
 });
@@ -203,7 +176,7 @@ process.on('SIGTERM', async () => {
 async function startServer() {
   try {
     await initializeDatabase();
-    
+
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
