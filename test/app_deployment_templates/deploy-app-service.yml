@@ -43,12 +43,12 @@ jobs:
                     runtimeStack: 'NODE|18-lts'
                     startUpCommand: 'node server.js'
 
-                - script: |
+                - bash: |
                     echo "Waiting for application to start..."
                     sleep ${{ env.healthCheckDelay }}
                   displayName: 'Wait for Deployment'
 
-                - script: |
+                - bash: |
                     HEALTH_URL="https://${{ env.appServiceName }}.azurewebsites.net/health"
                     echo "Health Check: $HEALTH_URL"
                     
@@ -66,7 +66,7 @@ jobs:
                     exit 1
                   displayName: 'Health Check'
 
-                - script: |
+                - bash: |
                     QUOTE_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/quote"
                     echo "API Smoke Test: $QUOTE_URL"
                     
@@ -83,7 +83,7 @@ jobs:
                   displayName: 'API Smoke Test'
                   condition: and(succeeded(), eq('${{ env.runSmokeTests }}', 'true'))
 
-                - script: |
+                - bash: |
                     STATS_URL="https://${{ env.appServiceName }}.azurewebsites.net/api/stats"
                     echo "Stats Check: $STATS_URL"
                     
