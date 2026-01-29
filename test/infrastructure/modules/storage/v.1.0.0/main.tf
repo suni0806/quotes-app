@@ -10,7 +10,7 @@ resource "azurerm_storage_account" "audit" {
   location                 = var.location
   account_tier             = var.account_tier
   account_replication_type = var.replication_type
-  
+
   enable_https_traffic_only = true
   min_tls_version           = "TLS1_2"
 

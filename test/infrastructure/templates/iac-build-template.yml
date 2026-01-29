@@ -19,13 +19,13 @@ jobs:
           echo "=========================================="
           echo "  Building Infrastructure for: ${{ parameters.appname }}"
           echo "=========================================="
-          cd infrastructure/platform
+          cd test/infrastructure/platform
           terraform fmt -check -recursive
         displayName: 'Format Check'
         continueOnError: true
 
       - script: |
-          cd infrastructure/platform
+          cd test/infrastructure/platform
           terraform init -backend=false
           terraform validate
         displayName: 'Validate Terraform'

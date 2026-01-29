@@ -42,7 +42,7 @@ jobs:
                 scriptType: 'ps'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
-                  Set-Location infrastructure/platform
+                  Set-Location test/infrastructure/platform
                   terraform init ${{ parameters.backendConfig }}
                 addSpnToEnvironment: true
 
@@ -53,7 +53,7 @@ jobs:
                 scriptType: 'ps'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
-                  Set-Location infrastructure/platform
+                  Set-Location test/infrastructure/platform
                   terraform apply -auto-approve ${{ parameters.env }}.tfplan
                 addSpnToEnvironment: true
 

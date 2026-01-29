@@ -5,13 +5,13 @@
 
 # App Service Plan with Zone Redundancy
 resource "azurerm_service_plan" "main" {
-  name                       = "${var.project_name}-appsvcplan-${var.environment}"
-  location                   = var.location
-  resource_group_name        = var.resource_group_name
-  os_type                    = "Linux"
-  sku_name                   = var.sku_name
-  zone_balancing_enabled     = var.zone_balancing_enabled
-  
+  name                   = "${var.project_name}-appsvcplan-${var.environment}"
+  location               = var.location
+  resource_group_name    = var.resource_group_name
+  os_type                = "Linux"
+  sku_name               = var.sku_name
+  zone_balancing_enabled = var.zone_balancing_enabled
+
   tags = var.tags
 }
 
@@ -30,7 +30,7 @@ resource "azurerm_linux_web_app" "main" {
 
   site_config {
     always_on = true
-    
+
     application_stack {
       node_version = "18-lts"
     }
@@ -41,10 +41,10 @@ resource "azurerm_linux_web_app" "main" {
   }
 
   app_settings = {
-    "APPLICATIONINSIGHTS_CONNECTION_STRING"          = var.app_insights_connection_string
-    "ApplicationInsightsAgent_EXTENSION_VERSION"     = "~3"
-    "WEBSITE_NODE_DEFAULT_VERSION"                   = "~18"
-    "DATABASE_CONNECTION_STRING"                     = "@Microsoft.KeyVault(SecretUri=${var.sql_connection_secret_id})"
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"      = var.app_insights_connection_string
+    "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
+    "WEBSITE_NODE_DEFAULT_VERSION"               = "~18"
+    "DATABASE_CONNECTION_STRING"                 = "@Microsoft.KeyVault(SecretUri=${var.sql_connection_secret_id})"
   }
 
   virtual_network_subnet_id = var.app_service_subnet_id
