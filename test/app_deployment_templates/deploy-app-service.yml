@@ -76,9 +76,9 @@ jobs:
                           $ex = $_.Exception
                           if ($ex.Response) {
                             $STATUS = [int]$ex.Response.StatusCode
-                            Write-Host "Attempt $i: Received HTTP $STATUS"
+                            Write-Host "Attempt $($i): Received HTTP $($STATUS)"
                           } else {
-                            Write-Host "Attempt $i: Connection error: $($ex.Message)"
+                            Write-Host "Attempt $($i): Connection error: $($ex.Message)"
                             $STATUS = "ConnectionFailed"
                           }
                         }
