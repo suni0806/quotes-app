@@ -43,20 +43,23 @@ jobs:
                     runtimeStack: 'NODE|18-lts'
                     startUpCommand: 'node server.js'
 
-                - task: PowerShell@2
+                - task: AzureCLI@2
                   displayName: 'Wait for Deployment'
                   inputs:
-                    targetType: 'inline'
-                    script: |
+                    azureSubscription: ${{ env.azureServiceConnection }}
+                    scriptType: 'pscore'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
                       Write-Host "Waiting for application to start..."
                       Start-Sleep -Seconds ${{ env.healthCheckDelay }}
-                    pwsh: true
 
-                - task: PowerShell@2
+                - task: AzureCLI@2
                   displayName: 'Health Check'
                   inputs:
-                    targetType: 'inline'
-                    script: |
+                    azureSubscription: ${{ env.azureServiceConnection }}
+                    scriptType: 'pscore'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
                       $HEALTH_URL = "https://${{ env.appServiceName }}.azurewebsites.net/health"
                       Write-Host "Health Check: $HEALTH_URL"
                       
@@ -81,14 +84,15 @@ jobs:
                       
                       Write-Error "✗ Health check failed after ${{ env.healthCheckRetries }} attempts"
                       exit 1
-                    pwsh: true
 
-                - task: PowerShell@2
+                - task: AzureCLI@2
                   displayName: 'API Smoke Test'
                   condition: and(succeeded(), eq('${{ env.runSmokeTests }}', 'true'))
                   inputs:
-                    targetType: 'inline'
-                    script: |
+                    azureSubscription: ${{ env.azureServiceConnection }}
+                    scriptType: 'pscore'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
                       $QUOTE_URL = "https://${{ env.appServiceName }}.azurewebsites.net/api/quote"
                       Write-Host "API Smoke Test: $QUOTE_URL"
                       
@@ -108,15 +112,16 @@ jobs:
                         Write-Error "✗ API smoke test failed: $($_.Exception.Message)"
                         exit 1
                       }
-                    pwsh: true
 
-                - task: PowerShell@2
+                - task: AzureCLI@2
                   displayName: 'Database Stats Check'
                   condition: always()
                   continueOnError: true
                   inputs:
-                    targetType: 'inline'
-                    script: |
+                    azureSubscription: ${{ env.azureServiceConnection }}
+                    scriptType: 'pscore'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
                       $STATS_URL = "https://${{ env.appServiceName }}.azurewebsites.net/api/stats"
                       Write-Host "Stats Check: $STATS_URL"
                       
@@ -126,4 +131,3 @@ jobs:
                       } catch {
                         Write-Host "Warning: Could not fetch stats: $($_.Exception.Message)"
                       }
-                    pwsh: true
