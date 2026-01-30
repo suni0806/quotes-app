@@ -113,7 +113,6 @@ app.post('/api/db/reconnect', async (req, res) => {
 
 // Get random quote endpoint
 app.get('/api/quote', async (req, res) => {
-  // ... lines 71+ remain similar but with better error messaging ...
   try {
     if (!pool || !pool.connected) {
       throw new Error('Database not connected');

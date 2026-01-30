@@ -37,8 +37,8 @@ parameters:
         nodeVersion: 18.x
         workingDirectory: $(System.DefaultWorkingDirectory)/test/application
         environment: quotes-app-dev
-        healthCheckRetries: 5
-        healthCheckDelay: 10
+        healthCheckRetries: 10
+        healthCheckDelay: 20
         runSmokeTests: true
         notifyOnFailure: true
 

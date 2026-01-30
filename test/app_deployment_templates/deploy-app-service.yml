@@ -62,27 +62,31 @@ jobs:
                     inlineScript: |
                       $HEALTH_URL = "https://${{ env.appServiceName }}.azurewebsites.net/health"
                       Write-Host "Health Check: $HEALTH_URL"
+                      Write-Host "Patience: ${{ env.healthCheckRetries }} retries with ${{ env.healthCheckDelay }}s delay"
                       
                       for ($i = 1; $i -le ${{ env.healthCheckRetries }}; $i++) {
                         try {
-                          $response = Invoke-WebRequest -Uri $HEALTH_URL -UseBasicParsing -TimeoutSec 10
+                          $response = Invoke-WebRequest -Uri $HEALTH_URL -UseBasicParsing -TimeoutSec 20
                           $STATUS = [int]$response.StatusCode
                           if ($STATUS -eq 200) {
                             Write-Host "✓ Health check passed (HTTP $STATUS)"
                             exit 0
                           }
                         } catch {
-                          if ($_.Exception.Response) {
-                            $STATUS = [int]$_.Exception.Response.StatusCode
+                          $ex = $_.Exception
+                          if ($ex.Response) {
+                            $STATUS = [int]$ex.Response.StatusCode
+                            Write-Host "Attempt $i: Received HTTP $STATUS"
                           } else {
-                            $STATUS = "Error"
+                            Write-Host "Attempt $i: Connection error: $($ex.Message)"
+                            $STATUS = "ConnectionFailed"
                           }
                         }
-                        Write-Host "Attempt $i/${{ env.healthCheckRetries }}: HTTP $STATUS, retrying in ${{ env.healthCheckDelay }}s..."
+                        Write-Host "Retrying in ${{ env.healthCheckDelay }}s..."
                         Start-Sleep -Seconds ${{ env.healthCheckDelay }}
                       }
                       
-                      Write-Error "✗ Health check failed after ${{ env.healthCheckRetries }} attempts"
+                      Write-Error "✗ Health check failed after ${{ env.healthCheckRetries }} attempts. The site might still be starting or is unreachable."
                       exit 1
 
                 - task: AzureCLI@2
