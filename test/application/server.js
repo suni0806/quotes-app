@@ -43,31 +43,77 @@ let pool;
 
 // Initialize database connection
 async function initializeDatabase() {
+  const connStr = process.env.DATABASE_CONNECTION_STRING;
+
+  if (!connStr) {
+    console.error('CRITICAL: DATABASE_CONNECTION_STRING is missing!');
+    return;
+  }
+
+  // Check if it's still a Key Vault reference
+  if (connStr.startsWith('@Microsoft.KeyVault')) {
+    console.warn('DATABASE_CONNECTION_STRING is still a Key Vault reference. Waiting for resolution...');
+    // We don't throw here, let the next attempt handle it
+    return;
+  }
+
   try {
-    console.log('Using database connection string:', sqlConfig.connectionString.replace(/Password=[^;]+/, 'Password=***'));
+    console.log('Attempting to connect to database...');
+    // Simple mask for security
+    const maskedConn = connStr.replace(/Password=[^;]+/, 'Password=***');
+    console.log(`Using Connection String: ${maskedConn}`);
+
     pool = await sql.connect(sqlConfig);
-    console.log('Connected to Azure SQL Database');
+    console.log('✅ Connected to Azure SQL Database');
   } catch (err) {
-    console.error('Database connection failed:', err);
-    throw err;
+    console.error('❌ Database connection failed:', err.message);
+    // We don't exit the process here, allow the server to remain up for diagnostics
   }
 }
-
 
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Health check endpoint for Azure App Service
+// Basic Health check
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
+    dbConnected: !!(pool && pool.connected),
     timestamp: new Date().toISOString()
+  });
+});
+
+// Detailed Health check for diagnostics
+app.get('/health/detailed', (req, res) => {
+  res.status(200).json({
+    status: 'online',
+    database: {
+      connected: !!(pool && pool.connected),
+      hasConnectionString: !!process.env.DATABASE_CONNECTION_STRING,
+      isKeyVaultResolved: process.env.DATABASE_CONNECTION_STRING ? !process.env.DATABASE_CONNECTION_STRING.startsWith('@Microsoft.KeyVault') : false
+    },
+    environment: {
+      nodeEnv: process.env.NODE_ENV || 'production',
+      port: PORT,
+      identity: process.env.IDENTITY_ENDPOINT ? 'Available' : 'Not Found'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Re-attempt connection manually
+app.post('/api/db/reconnect', async (req, res) => {
+  await initializeDatabase();
+  res.json({
+    status: pool && pool.connected ? 'Connected' : 'Failed',
+    message: 'Check logs for details'
   });
 });
 
 // Get random quote endpoint
 app.get('/api/quote', async (req, res) => {
+  // ... lines 71+ remain similar but with better error messaging ...
   try {
     if (!pool || !pool.connected) {
       throw new Error('Database not connected');
@@ -173,18 +219,14 @@ process.on('SIGTERM', async () => {
 });
 
 // Start server
-async function startServer() {
-  try {
-    await initializeDatabase();
+function startServer() {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'production'}`);
 
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    });
-  } catch (err) {
-    console.error('Failed to start server:', err);
-    process.exit(1);
-  }
+    // Attempt database connection after server is up
+    initializeDatabase();
+  });
 }
 
 startServer();

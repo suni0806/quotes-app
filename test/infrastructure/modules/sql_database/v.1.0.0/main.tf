@@ -65,6 +65,14 @@ resource "azurerm_mssql_server_extended_auditing_policy" "main" {
   retention_in_days          = var.audit_retention_days
 }
 
+# Allow Azure Services to access the server
+resource "azurerm_mssql_firewall_rule" "azure_services" {
+  name             = "AllowAzureServices"
+  server_id        = azurerm_mssql_server.main.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
+}
+
 # Private Endpoint for SQL
 resource "azurerm_private_endpoint" "sql" {
   name                = "${var.project_name}-sqlpe-${var.environment}"
