@@ -25,7 +25,7 @@ jobs:
             Write-Host "=========================================="
             Write-Host "  Building Infrastructure for: ${{ parameters.appname }}"
             Write-Host "=========================================="
-            Set-Location test/infrastructure/platform
+            Set-Location quotes-app/infrastructure/platform
             terraform fmt -recursive
 
 

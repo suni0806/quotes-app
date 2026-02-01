@@ -5,7 +5,7 @@
 The project is now cleanly organized into two main folders:
 
 ```
-test/
+quotes-app/
 │
 ├── 📁 infrastructure/          # All Infrastructure & Deployment
 │   ├── main.tf                 # Terraform main configuration

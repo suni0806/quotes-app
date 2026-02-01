@@ -285,7 +285,7 @@ Fixes #456
 ## Project Structure
 
 ```
-test/
+quotes-app/
 ├── terraform/          # Infrastructure as Code
 │   ├── main.tf        # Main Terraform configuration
 │   ├── variables.tf   # Input variables

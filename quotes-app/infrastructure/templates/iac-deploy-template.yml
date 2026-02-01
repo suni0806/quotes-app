@@ -33,7 +33,7 @@ jobs:
               displayName: 'Download Plan'
               inputs:
                 artifact: 'tfplan-${{ parameters.env }}'
-                path: 'test/infrastructure/platform'
+                path: 'quotes-app/infrastructure/platform'
 
             - task: AzureCLI@2
               displayName: 'Terraform Init'
@@ -48,7 +48,7 @@ jobs:
                   $env:ARM_TENANT_ID = $env:tenantId
                   $env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)
 
-                  Set-Location test/infrastructure/platform
+                  Set-Location quotes-app/infrastructure/platform
                   terraform init ${{ parameters.backendConfig }}
                 addSpnToEnvironment: true
 

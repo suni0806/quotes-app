@@ -1,7 +1,7 @@
 # Project File Structure
 
 ```
-test/
+quotes-app/
 │
 ├── 📄 README.md                    # Main project documentation
 ├── 📄 QUICKSTART.md                # Quick start guide (15-20 min deployment)

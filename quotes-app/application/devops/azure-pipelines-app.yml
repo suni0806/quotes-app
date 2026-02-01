@@ -9,7 +9,7 @@ trigger:
       - main
   paths:
     include:
-      - test/application/**
+      - quotes-app/application/**
 
 pr:
   branches:
@@ -17,7 +17,7 @@ pr:
       - main
   paths:
     include:
-      - test/application/**
+      - quotes-app/application/**
 
 pool:
   name: 'test'
@@ -35,7 +35,7 @@ parameters:
         resourceGroupName: quotesapp-rg-dev-h3h4qv
         appServiceSlot: production
         nodeVersion: 18.x
-        workingDirectory: $(System.DefaultWorkingDirectory)/test/application
+        workingDirectory: $(System.DefaultWorkingDirectory)/quotes-app/application
         environment: quotes-app-dev
         healthCheckRetries: 10
         healthCheckDelay: 20

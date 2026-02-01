@@ -32,7 +32,7 @@ trigger:
       - main
   paths:
     include:
-      - test/infrastructure
+      - quotes-app/infrastructure
 
 pr:
   branches:
@@ -40,7 +40,7 @@ pr:
     - main
   paths:
     include:
-    - test/infrastructure
+    - quotes-app/infrastructure
 
 pool:
   name: 'test'  # Self-hosted agent pool - change this to match your pool name in Azure DevOps

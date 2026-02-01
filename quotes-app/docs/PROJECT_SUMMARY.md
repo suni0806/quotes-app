@@ -145,7 +145,7 @@ Availability Components:
 ### Project Structure
 
 ```
-test/
+quotes-app/
 ├── terraform/              # Infrastructure as Code
 │   ├── main.tf            # 400+ lines of Terraform
 │   ├── variables.tf       # Input parameters
