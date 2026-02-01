@@ -19,7 +19,7 @@ resource "azurerm_mssql_server" "main" {
   administrator_login          = var.admin_username
   administrator_login_password = random_password.admin.result
 
-  public_network_access_enabled = true
+  public_network_access_enabled = false
   minimum_tls_version           = "1.2"
 
   azuread_administrator {
@@ -65,13 +65,6 @@ resource "azurerm_mssql_server_extended_auditing_policy" "main" {
   retention_in_days          = var.audit_retention_days
 }
 
-# Allow Azure Services to access the server
-resource "azurerm_mssql_firewall_rule" "azure_services" {
-  name             = "AllowAzureServices"
-  server_id        = azurerm_mssql_server.main.id
-  start_ip_address = "0.0.0.0"
-  end_ip_address   = "0.0.0.0"
-}
 
 # Private Endpoint for SQL
 resource "azurerm_private_endpoint" "sql" {
