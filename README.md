@@ -19,57 +19,47 @@ This project demonstrates production ready Azure infrastructure with security fi
 ## Project Structure
 
 ```
-test/
-├── quotes-app/                                    # Main application directory
-│   ├── application/                              # Node.js web application
-│   │   ├── server.js                            # Express API server (quote retrieval)
-│   │   ├── package.json                         # Node.js dependencies
-│   │   ├── public/
-│   │   │   └── index.html                       # Frontend UI for quote display
-│   │   └── scripts/
-│   │       ├── seed-database.js                 # Database seeding (50 quotes)
-│   │       └── package.json                     # Seed script dependencies
-│   │
-│   ├── infrastructure/                           # Terraform Infrastructure as Code
-│   │   ├── modules/                             # Reusable Terraform modules
-│   │   │   ├── app_service/v.1.0.0/            # App Service Plan + Web App + Autoscaling
-│   │   │   ├── sql_database/v.1.0.0/           # SQL Server + Database + Private Endpoint
-│   │   │   ├── networking/v.1.0.0/             # VNet + Subnets + Private DNS zones
-│   │   │   ├── key_vault/v.1.0.0/              # Key Vault for secrets management
-│   │   │   ├── storage/v.1.0.0/                # Storage Account for SQL audit logs
-│   │   │   └── monitoring/v.1.0.0/             # Application Insights + Log Analytics
-│   │   │
-│   │   ├── platform/                            # Platform deployment configuration
-│   │   │   ├── main.tf                          # Root module orchestration
-│   │   │   ├── variables.tf                     # Variable definitions
-│   │   │   ├── outputs.tf                       # Output values
-│   │   │   ├── backend.tf                       # Remote state configuration
-│   │   │   └── environments/                    # Environment-specific configs
-│   │   │       ├── dev/                         # Development environment
-│   │   │       │   ├── backend.tfvars          # Dev backend settings
-│   │   │       │   └── variables.tfvars        # Dev variable values
-│   │   │       └── production/                  # Production environment
-│   │   │           ├── backend.tfvars          # Prod backend settings
-│   │   │           └── variables.tfvars        # Prod variable values
-│   │   │
-│   │   ├── pipeline/                            # CI/CD automation
-│   │   │   ├── iac_cicd.yml                    # Azure Pipelines - IaC deployment
-│   │   │
-│   │   └── iac_deployment_templates/            # Pipeline templates
-│   │       ├── iac-build-template.yml          # Build template
-│   │       ├── iac-deploy-template.yml         # Deploy template
-│   │       ├── iac-validate-template.yml       # Validation template
-│   │       └── iac-backend-storage-template.yml # Backend setup template
-│   │
-│   ├── app_deployment_templates/                # Application deployment pipelines
-│   │   ├── build-app-service.yml               # App build pipeline
-│   │   └── deploy-app-service.yml              # App deploy pipeline
-│   │
-│   └── workflows/                               # GitHub Actions (optional)
-│       ├── deploy-app.yml                      # GitHub workflow for deployment
-│       └── README.md                           # Workflow documentation
-│
-└── README.md                                    # This file
+quotes-app/
+├── application/
+│   ├── server.js
+│   ├── package.json
+│   ├── public/
+│   │   └── index.html
+│   └── scripts/
+│       ├── seed-database.js
+│       └── package.json
+├── infrastructure/
+│   ├── modules/
+│   │   ├── app_service/v.1.0.0/
+│   │   ├── sql_database/v.1.0.0/
+│   │   ├── networking/v.1.0.0/
+│   │   ├── key_vault/v.1.0.0/
+│   │   ├── storage/v.1.0.0/
+│   │   └── monitoring/v.1.0.0/
+│   ├── platform/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   │   ├── backend.tf
+│   │   └── environments/
+│   │       ├── dev/
+│   │       │   ├── backend.tfvars
+│   │       │   └── variables.tfvars
+│   │       └── production/
+│   │           ├── backend.tfvars
+│   │           └── variables.tfvars
+│   ├── pipeline/
+│   │   └── iac_cicd.yml
+│   └── iac_deployment_templates/
+│       ├── iac-build-template.yml
+│       ├── iac-deploy-template.yml
+│       ├── iac-validate-template.yml
+│       └── iac-backend-storage-template.yml
+├── app_deployment_templates/
+│   ├── build-app-service.yml
+│   └── deploy-app-service.yml
+└── workflows/
+    └── deploy-app.yml
 ```
 
 ### Key Folder Purposes
