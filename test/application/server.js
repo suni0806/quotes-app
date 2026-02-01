@@ -22,52 +22,45 @@ if (process.env.APPLICATIONINSIGHTS_CONNECTION_STRING) {
   console.log('Application Insights initialized');
 }
 
-// SQL connection configuration
-const sqlConfig = {
-  connectionString: process.env.DATABASE_CONNECTION_STRING,
-  options: {
-    encrypt: true, // Use encryption for data in transit
-    trustServerCertificate: false,
-    enableArithAbort: true,
-    requestTimeout: 30000
-  },
-  pool: {
-    max: 10,
-    min: 0,
-    idleTimeoutMillis: 30000
-  }
-};
-
 // Connection pool
 let pool;
 
 // Initialize database connection
 async function initializeDatabase() {
-  const connStr = process.env.DATABASE_CONNECTION_STRING;
+  const server = process.env.SQL_SERVER;
+  const database = process.env.SQL_DATABASE;
 
-  if (!connStr) {
-    console.error('CRITICAL: DATABASE_CONNECTION_STRING is missing!');
-    return;
-  }
-
-  // Check if it's still a Key Vault reference
-  if (connStr.startsWith('@Microsoft.KeyVault')) {
-    console.warn('DATABASE_CONNECTION_STRING is still a Key Vault reference. Waiting for resolution...');
-    // We don't throw here, let the next attempt handle it
+  if (!server || !database) {
+    console.error('CRITICAL: SQL_SERVER or SQL_DATABASE environment variables are missing!');
     return;
   }
 
   try {
-    console.log('Attempting to connect to database...');
-    // Simple mask for security
-    const maskedConn = connStr.replace(/Password=[^;]+/, 'Password=***');
-    console.log(`Using Connection String: ${maskedConn}`);
+    console.log('Attempting to connect to database using Managed Identity...');
+    console.log(`Target - Server: ${server}, Database: ${database}`);
 
-    pool = await sql.connect(sqlConfig);
-    console.log('✅ Connected to Azure SQL Database');
+    const config = {
+      server: server,
+      database: database,
+      authentication: {
+        type: 'azure-active-directory-msi-vm'
+      },
+      options: {
+        encrypt: true,
+        trustServerCertificate: false,
+        enableArithAbort: true,
+        port: 1433,
+        connectTimeout: 30000
+      }
+    };
+
+    pool = await sql.connect(config);
+    console.log('✅ Connected to Azure SQL Database via Managed Identity');
   } catch (err) {
     console.error('❌ Database connection failed:', err.message);
-    // We don't exit the process here, allow the server to remain up for diagnostics
+    if (appInsights.defaultClient) {
+      appInsights.defaultClient.trackException({ exception: err });
+    }
   }
 }
 
@@ -90,8 +83,9 @@ app.get('/health/detailed', (req, res) => {
     status: 'online',
     database: {
       connected: !!(pool && pool.connected),
-      hasConnectionString: !!process.env.DATABASE_CONNECTION_STRING,
-      isKeyVaultResolved: process.env.DATABASE_CONNECTION_STRING ? !process.env.DATABASE_CONNECTION_STRING.startsWith('@Microsoft.KeyVault') : false
+      server: process.env.SQL_SERVER || 'Not Configured',
+      database: process.env.SQL_DATABASE || 'Not Configured',
+      authType: 'Managed Identity (Entra ID)'
     },
     environment: {
       nodeEnv: process.env.NODE_ENV || 'production',

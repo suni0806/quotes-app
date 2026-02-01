@@ -29,8 +29,13 @@ variable "app_insights_connection_string" {
   sensitive   = true
 }
 
-variable "sql_connection_secret_id" {
-  description = "Key Vault secret ID for SQL connection string"
+variable "sql_server_fqdn" {
+  description = "FQDN of the SQL Server"
+  type        = string
+}
+
+variable "sql_database_name" {
+  description = "Name of the SQL Database"
   type        = string
 }
 

@@ -44,7 +44,8 @@ resource "azurerm_linux_web_app" "main" {
     "APPLICATIONINSIGHTS_CONNECTION_STRING"      = var.app_insights_connection_string
     "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
     "WEBSITE_NODE_DEFAULT_VERSION"               = "~18"
-    "DATABASE_CONNECTION_STRING"                 = "@Microsoft.KeyVault(SecretUri=${var.sql_connection_secret_id})"
+    "SQL_SERVER"                                 = var.sql_server_fqdn
+    "SQL_DATABASE"                               = var.sql_database_name
   }
 
   virtual_network_subnet_id = var.app_service_subnet_id
