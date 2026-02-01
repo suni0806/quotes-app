@@ -49,7 +49,7 @@ stages:
   - stage: Build
     displayName: Build
     jobs:
-    - template: ../templates/iac-build-template.yml
+    - template: ../iac_deployment_templates/iac-build-template.yml
       parameters:
         environments: ${{ parameters.environments }}
         appname: '$(app_name)'
@@ -60,7 +60,7 @@ stages:
     condition: and(succeeded('Build'), eq(variables['bckndchangeVar'], 'true'), not(canceled()) )
     displayName: Backend_Storage
     jobs:
-    - template: ../templates/iac-backend-storage-template.yml
+    - template: ../iac_deployment_templates/iac-backend-storage-template.yml
       parameters:
         environments: ${{ parameters.environments }}
 
@@ -70,7 +70,7 @@ stages:
     condition: and(succeeded('Build'), not(failed('Backend_Storage')), not(canceled()))
     displayName: Validate_quotes_dev
     jobs:
-      - template: ../templates/iac-validate-template.yml
+      - template: ../iac_deployment_templates/iac-validate-template.yml
         parameters:
           env: 'quotes_dev'
           backendConfig: '--backend-config=environments/dev/backend.tfvars'
@@ -87,7 +87,7 @@ stages:
       changeVar: $[ dependencies.Validate_quotes_dev.outputs['validate_quotes_dev.outputVars.changeDetected']]
     condition: and(succeeded('Validate_quotes_dev'), eq(variables['Build.SourceBranch'], 'refs/heads/main'), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['changeVar'], 'true'))
     jobs:
-      - template: ../templates/iac-deploy-template.yml
+      - template: ../iac_deployment_templates/iac-deploy-template.yml
         parameters:
           env: 'quotes_dev'
           backendConfig: '--backend-config=environments/dev/backend.tfvars'
@@ -104,7 +104,7 @@ stages:
     condition: and(not(failed('DeployToquotes_dev')), not(canceled()))
     displayName: Validate_quotes_production
     jobs:
-      - template: ../templates/iac-validate-template.yml
+      - template: ../iac_deployment_templates/iac-validate-template.yml
         parameters:
           env: 'quotes_production'
           backendConfig: '--backend-config=environments/production/backend.tfvars'
@@ -121,7 +121,7 @@ stages:
       changeVar: $[ dependencies.Validate_quotes_production.outputs['validate_quotes_production.outputVars.changeDetected']]
     condition: and(succeeded('Validate_quotes_production'), eq(variables['Build.SourceBranch'], 'refs/heads/main'), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['changeVar'], 'true'))
     jobs:
-      - template: ../templates/iac-deploy-template.yml
+      - template: ../iac_deployment_templates/iac-deploy-template.yml
         parameters:
           env: 'quotes_production'
           backendConfig: '--backend-config=environments/production/backend.tfvars'
