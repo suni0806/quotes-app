@@ -76,13 +76,12 @@ test/
 
 | Path | Purpose |
 |------|---------|
-| `quotes-app/application/` | Node.js Express application for serving quotes API and frontend |
 | `quotes-app/infrastructure/modules/` | Self-contained, versioned Terraform modules for each Azure service |
 | `quotes-app/infrastructure/platform/` | Main Terraform orchestration combining all modules |
 | `quotes-app/infrastructure/platform/environments/` | Environment-specific configurations (dev/prod) |
 | `quotes-app/infrastructure/pipeline/` | Automation scripts for deployment and cleanup |
-| `quotes-app/docs/` | Complete project documentation including security and architecture |
 | `quotes-app/app_deployment_templates/` | Azure Pipelines YAML for application deployment |
+| `quotes-app/application/` | Node.js Express application for serving quotes API and frontend |
 
 ## Architecture
 
