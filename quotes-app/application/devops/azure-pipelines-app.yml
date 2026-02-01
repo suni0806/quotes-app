@@ -54,7 +54,7 @@ parameters:
         resourceGroupName: quotesapp-rg-production-h3h4qv
         appServiceSlot: production
         nodeVersion: 18.x
-        workingDirectory: $(System.DefaultWorkingDirectory)/test/application
+        workingDirectory: $(System.DefaultWorkingDirectory)/quotes-app/application
         environment: quotes-app-production
         healthCheckRetries: 10
         healthCheckDelay: 15
