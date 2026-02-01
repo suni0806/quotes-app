@@ -128,12 +128,7 @@ module "app_service" {
   os_type                      = var.app_service_os_type
   identity                     = var.app_service_identity
   application_stack            = var.app_service_application_stack
-  app_settings = merge(var.extra_app_settings, {
-    "APPLICATIONINSIGHTS_CONNECTION_STRING"      = module.monitoring.app_insights_connection_string
-    "ApplicationInsightsAgent_EXTENSION_VERSION" = var.app_service_appinsights_extension_version
-    "SQL_SERVER"                                 = module.sql_database.sql_server_fqdn
-    "SQL_DATABASE"                               = module.sql_database.sql_database_name
-  })
+  app_settings                 = var.app_service_settings
   # Free tier (F1) does not support VNet integration on Linux
   app_service_subnet_id = var.app_service_sku == "F1" ? null : module.networking.app_service_subnet_id
   always_on             = var.app_service_always_on

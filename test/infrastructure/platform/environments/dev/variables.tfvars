@@ -28,9 +28,14 @@ app_service_identity = {
 app_service_application_stack = {
   node_version = "18-lts"
 }
-app_service_appinsights_extension_version = "~3"
-extra_app_settings = {
-  "WEBSITE_NODE_DEFAULT_VERSION" = "~18"
+
+app_service_settings = {
+  "WEBSITE_NODE_DEFAULT_VERSION"               = "~18"
+  "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
+  # NOTE: These values are now externalized but may need updating if infrastructure changes
+  "APPLICATIONINSIGHTS_CONNECTION_STRING" = "placeholder-connection-string"
+  "SQL_SERVER"                            = "placeholder-sql-server"
+  "SQL_DATABASE"                          = "quotesdb"
 }
 
 # SQL Database Configuration - Dev uses Basic tier

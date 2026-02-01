@@ -74,13 +74,10 @@ variable "app_service_application_stack" {
   type        = any
 }
 
-variable "app_service_appinsights_extension_version" {
-  description = "Application Insights extension version"
-  type        = string
-}
 
-variable "extra_app_settings" {
-  description = "Additional application settings"
+
+variable "app_service_settings" {
+  description = "Application settings for the Web App"
   type        = map(string)
 }
 
