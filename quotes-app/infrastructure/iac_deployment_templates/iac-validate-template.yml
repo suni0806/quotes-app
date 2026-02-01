@@ -60,7 +60,7 @@ jobs:
             $env:TF_VAR_subscription_id = "${{ parameters.subscription }}"
             $env:TF_VAR_tenant_id = "${{ parameters.tenantid }}"
 
-            Set-Location test/infrastructure/platform
+            Set-Location quotes-app/infrastructure/platform
             terraform plan ${{ parameters.varFile }} -out="${{ parameters.env }}.tfplan"
             
             Write-Host "##vso[task.setvariable variable=changeDetected;isOutput=true]true"

@@ -65,7 +65,7 @@ jobs:
                   $env:ARM_TENANT_ID = $env:tenantId
                   $env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)
 
-                  Set-Location test/infrastructure/platform
+                  Set-Location quotes-app/infrastructure/platform
                   terraform apply -auto-approve ${{ parameters.env }}.tfplan
                 addSpnToEnvironment: true
 
