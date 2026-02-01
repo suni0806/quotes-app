@@ -103,12 +103,12 @@ jobs:
                       try {
                         $response = Invoke-WebRequest -Uri $QUOTE_URL -UseBasicParsing
                         $content = $response.Content
-                        if ($content -like "*quote*") {
-                          Write-Host "✓ API smoke test passed"
-                          Write-Host "Sample response: $($content.Substring(0, [Math]::Min(200, $content.Length)))"
+                        $json = $content | ConvertFrom-Json
+                        if ($json.text -and $json.author) {
+                          Write-Host "✓ API smoke test passed for: $($json.author)"
                           exit 0
                         } else {
-                          Write-Error "✗ API smoke test failed: Quote property not found"
+                          Write-Error "✗ API smoke test failed: 'text' or 'author' property not found"
                           Write-Host "Response: $content"
                           exit 1
                         }
