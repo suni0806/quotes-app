@@ -37,6 +37,15 @@ storage_replication_type = "LRS"
 vnet_address_space             = ["10.1.0.0/16"]
 app_service_subnet_prefix      = ["10.1.1.0/24"]
 private_endpoint_subnet_prefix = ["10.1.2.0/24"]
+app_service_subnet_delegations = [
+  {
+    name = "app-service-delegation"
+    service_delegation = {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+]
 
 # Monitoring Configuration
 log_analytics_retention_days = 30

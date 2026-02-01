@@ -43,6 +43,7 @@ module "networking" {
   vnet_address_space             = var.vnet_address_space
   app_service_subnet_prefix      = var.app_service_subnet_prefix
   private_endpoint_subnet_prefix = var.private_endpoint_subnet_prefix
+  app_service_subnet_delegations = var.app_service_subnet_delegations
   tags                           = azurerm_resource_group.main.tags
 }
 

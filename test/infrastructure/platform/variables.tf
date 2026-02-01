@@ -147,6 +147,18 @@ variable "private_endpoint_subnet_prefix" {
   default     = ["10.0.2.0/24"]
 }
 
+variable "app_service_subnet_delegations" {
+  description = "Delegations for the App Service subnet"
+  type = list(object({
+    name = string
+    service_delegation = object({
+      name    = string
+      actions = list(string)
+    })
+  }))
+  default = []
+}
+
 # ===================================================================
 # Monitoring Configuration
 # ===================================================================

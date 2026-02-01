@@ -20,11 +20,14 @@ resource "azurerm_subnet" "app_service" {
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = var.app_service_subnet_prefix
 
-  delegation {
-    name = "app-service-delegation"
-    service_delegation {
-      name    = "Microsoft.Web/serverFarms"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+  dynamic "delegation" {
+    for_each = var.app_service_subnet_delegations
+    content {
+      name = delegation.value.name
+      service_delegation {
+        name    = delegation.value.service_delegation.name
+        actions = delegation.value.service_delegation.actions
+      }
     }
   }
 }
