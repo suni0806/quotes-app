@@ -4,22 +4,9 @@ A highly available web application displaying random quotes from Azure SQL Datab
 
 ## Overview
 
-This project demonstrates production-ready Azure infrastructure with security-first design, treating all data as critical PII. The application uses zone-redundant services, private networking, and comprehensive monitoring.
+This project demonstrates production ready Azure infrastructure with security first design, treating all data as critical PII. The application uses zone redundant services, private networking, and comprehensive monitoring.
 
 **Tech Stack**: Node.js, Azure SQL Database, Azure App Service, Terraform
-
-## Quick Start
-
-```bash
-# Deploy infrastructure
-cd quotes-app/infrastructure/platform
-terraform init
-terraform apply -var-file="environments/dev/variables.tfvars"
-
-# Deploy application
-cd ../../application
-npm install
-npm start
 ```
 
 ## Key Features
@@ -67,8 +54,6 @@ test/
 │   │   │
 │   │   ├── pipeline/                            # CI/CD automation
 │   │   │   ├── iac_cicd.yml                    # Azure Pipelines - IaC deployment
-│   │   │   ├── deploy.ps1                      # PowerShell deployment script
-│   │   │   └── cleanup.ps1                     # Resource cleanup script
 │   │   │
 │   │   └── iac_deployment_templates/            # Pipeline templates
 │   │       ├── iac-build-template.yml          # Build template
@@ -79,14 +64,6 @@ test/
 │   ├── app_deployment_templates/                # Application deployment pipelines
 │   │   ├── build-app-service.yml               # App build pipeline
 │   │   └── deploy-app-service.yml              # App deploy pipeline
-│   │
-│   ├── docs/                                    # Comprehensive documentation
-│   │   ├── PROJECT_SUMMARY.md                  # Executive overview + AI usage
-│   │   ├── DEPLOYMENT.md                       # Step-by-step deployment guide
-│   │   ├── ARCHITECTURE.md                     # System architecture details
-│   │   ├── SECURITY.md                         # Security implementation
-│   │   ├── QUICKSTART.md                       # Quick deployment guide
-│   │   └── FILE_STRUCTURE.md                   # Directory structure details
 │   │
 │   └── workflows/                               # GitHub Actions (optional)
 │       ├── deploy-app.yml                      # GitHub workflow for deployment
@@ -113,13 +90,6 @@ test/
 Internet (HTTPS) → App Service (Zone Redundant) → VNet → Private Endpoint → Azure SQL (Encrypted)
 ```
 
-## Documentation
-
-- [PROJECT_SUMMARY.md](quotes-app/docs/PROJECT_SUMMARY.md) - Complete overview & AI usage disclosure
-- [DEPLOYMENT.md](quotes-app/docs/DEPLOYMENT.md) - Step-by-step deployment guide
-- [ARCHITECTURE.md](quotes-app/docs/ARCHITECTURE.md) - Technical architecture details
-- [SECURITY.md](quotes-app/docs/SECURITY.md) - Security implementation
-
 ## Requirements Compliance
 
 | Requirement | Status |
@@ -132,7 +102,6 @@ Internet (HTTPS) → App Service (Zone Redundant) → VNet → Private Endpoint 
 | Azure + Terraform | ✅ |
 | AI usage documented | ✅ |
 
-**AI Disclosure**: GitHub Copilot used extensively (60-80% across components). All code reviewed and tested. See [PROJECT_SUMMARY.md](quotes-app/docs/PROJECT_SUMMARY.md) for details.
 
 ## Author
 
