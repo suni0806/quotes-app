@@ -66,6 +66,24 @@ variable "autoscale_cpu_threshold_low" {
   default     = 25
 }
 
+variable "app_service_node_version" {
+  description = "Node.js version for the Web App"
+  type        = string
+  default     = "~18"
+}
+
+variable "app_service_appinsights_extension_version" {
+  description = "Application Insights extension version"
+  type        = string
+  default     = "~3"
+}
+
+variable "extra_app_settings" {
+  description = "Additional application settings"
+  type        = map(string)
+  default     = {}
+}
+
 # ===================================================================
 # SQL Database Configuration
 # ===================================================================

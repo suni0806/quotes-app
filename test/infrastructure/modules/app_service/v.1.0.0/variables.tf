@@ -23,22 +23,6 @@ variable "suffix" {
   type        = string
 }
 
-variable "app_insights_connection_string" {
-  description = "Application Insights connection string"
-  type        = string
-  sensitive   = true
-}
-
-variable "sql_server_fqdn" {
-  description = "FQDN of the SQL Server"
-  type        = string
-}
-
-variable "sql_database_name" {
-  description = "Name of the SQL Database"
-  type        = string
-}
-
 variable "app_service_subnet_id" {
   description = "Subnet ID for App Service VNet integration"
   type        = string
@@ -95,4 +79,10 @@ variable "always_on" {
   description = "Enable Always On for App Service (not supported on Free/Shared tiers)"
   type        = bool
   default     = true
+}
+
+variable "app_settings" {
+  description = "Application settings for the Web App"
+  type        = map(string)
+  default     = {}
 }

@@ -112,21 +112,25 @@ module "monitoring" {
 module "app_service" {
   source = "../modules/app_service/v.1.0.0"
 
-  resource_group_name            = azurerm_resource_group.main.name
-  location                       = azurerm_resource_group.main.location
-  environment                    = var.environment
-  project_name                   = var.project_name
-  suffix                         = random_string.suffix.result
-  sku_name                       = var.app_service_sku
-  zone_balancing_enabled         = var.app_service_zone_balancing_enabled
-  autoscale_min_instances        = var.autoscale_min_instances
-  autoscale_max_instances        = var.autoscale_max_instances
-  autoscale_default_instances    = var.autoscale_default_instances
-  autoscale_cpu_threshold_high   = var.autoscale_cpu_threshold_high
-  autoscale_cpu_threshold_low    = var.autoscale_cpu_threshold_low
-  app_insights_connection_string = module.monitoring.app_insights_connection_string
-  sql_server_fqdn                = module.sql_database.sql_server_fqdn
-  sql_database_name              = module.sql_database.sql_database_name
+  resource_group_name          = azurerm_resource_group.main.name
+  location                     = azurerm_resource_group.main.location
+  environment                  = var.environment
+  project_name                 = var.project_name
+  suffix                       = random_string.suffix.result
+  sku_name                     = var.app_service_sku
+  zone_balancing_enabled       = var.app_service_zone_balancing_enabled
+  autoscale_min_instances      = var.autoscale_min_instances
+  autoscale_max_instances      = var.autoscale_max_instances
+  autoscale_default_instances  = var.autoscale_default_instances
+  autoscale_cpu_threshold_high = var.autoscale_cpu_threshold_high
+  autoscale_cpu_threshold_low  = var.autoscale_cpu_threshold_low
+  app_settings = merge(var.extra_app_settings, {
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"      = module.monitoring.app_insights_connection_string
+    "ApplicationInsightsAgent_EXTENSION_VERSION" = var.app_service_appinsights_extension_version
+    "WEBSITE_NODE_DEFAULT_VERSION"               = var.app_service_node_version
+    "SQL_SERVER"                                 = module.sql_database.sql_server_fqdn
+    "SQL_DATABASE"                               = module.sql_database.sql_database_name
+  })
   # Free tier (F1) does not support VNet integration on Linux
   app_service_subnet_id = var.app_service_sku == "F1" ? null : module.networking.app_service_subnet_id
   always_on             = var.app_service_always_on

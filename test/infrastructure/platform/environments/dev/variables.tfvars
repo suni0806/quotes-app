@@ -13,13 +13,15 @@ common_tags = {
 }
 
 # App Service Configuration - Dev uses smallest available SKU
-app_service_sku                    = "B1"  # Smallest Basic tier
-app_service_zone_balancing_enabled = false 
-autoscale_min_instances            = 1
-autoscale_max_instances            = 1
-autoscale_default_instances        = 1
-autoscale_cpu_threshold_high       = 80
-autoscale_cpu_threshold_low        = 20
+app_service_sku                           = "B1" # Smallest Basic tier
+app_service_zone_balancing_enabled        = false
+autoscale_min_instances                   = 1
+autoscale_max_instances                   = 1
+autoscale_default_instances               = 1
+autoscale_cpu_threshold_high              = 80
+autoscale_cpu_threshold_low               = 20
+app_service_node_version                  = "~18"
+app_service_appinsights_extension_version = "~3"
 
 # SQL Database Configuration - Dev uses Basic tier
 sql_database_sku          = "Basic"
