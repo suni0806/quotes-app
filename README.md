@@ -8,20 +8,6 @@ This project demonstrates production-ready Azure infrastructure with security-fi
 
 **Tech Stack**: Node.js, Azure SQL Database, Azure App Service, Terraform
 
-## Quick Start
-
-```bash
-# Deploy infrastructure
-cd quotes-app/infrastructure/platform
-terraform init
-terraform apply -var-file="environments/dev/variables.tfvars"
-
-# Deploy application
-cd ../../application
-npm install
-npm start
-```
-
 ## Key Features
 
 - ✅ **Security**: Private Endpoints, TDE encryption, Managed Identity, Key Vault
@@ -35,12 +21,6 @@ npm start
 Internet (HTTPS) → App Service (Zone Redundant) → VNet → Private Endpoint → Azure SQL (Encrypted)
 ```
 
-## Documentation
-
-- [PROJECT_SUMMARY.md](quotes-app/docs/PROJECT_SUMMARY.md) - Complete overview & AI usage disclosure
-- [DEPLOYMENT.md](quotes-app/docs/DEPLOYMENT.md) - Step-by-step deployment guide
-- [ARCHITECTURE.md](quotes-app/docs/ARCHITECTURE.md) - Technical architecture details
-- [SECURITY.md](quotes-app/docs/SECURITY.md) - Security implementation
 
 ## Requirements Compliance
 
@@ -53,8 +33,6 @@ Internet (HTTPS) → App Service (Zone Redundant) → VNet → Private Endpoint 
 | Highly available | ✅ |
 | Azure + Terraform | ✅ |
 | AI usage documented | ✅ |
-
-**AI Disclosure**: GitHub Copilot used extensively (60-80% across components). All code reviewed and tested. See [PROJECT_SUMMARY.md](quotes-app/docs/PROJECT_SUMMARY.md) for details.
 
 ## Author
 
