@@ -1,0 +1,12 @@
+{
+  "name": "database-scripts",
+  "version": "1.0.0",
+  "description": "Database seeding and management scripts",
+  "scripts": {
+    "seed": "node seed-database.js"
+  },
+  "dependencies": {
+    "mssql": "^10.0.1",
+    "dotenv": "^16.3.1"
+  }
+}

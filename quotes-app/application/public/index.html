@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Quotes - Azure SQL Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .quote-container {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
+        .quote-text {
+            font-size: 1.8em;
+            color: #2c3e50;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-style: italic;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .quote-author {
+            font-size: 1.3em;
+            color: #7f8c8d;
+            font-weight: 600;
+            animation: slideIn 0.5s ease-out 0.2s both;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-weight: 600;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #e74c3c;
+            margin: 20px 0;
+            padding: 15px;
+            background: #fadbd8;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .stats {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #ecf0f1;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            color: #95a5a6;
+            font-size: 0.9em;
+        }
+
+        .tech-badge {
+            display: inline-block;
+            background: #ecf0f1;
+            padding: 5px 12px;
+            border-radius: 15px;
+            margin: 5px;
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .quote-text {
+                font-size: 1.4em;
+            }
+
+            .quote-author {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Random Quotes</h1>
+        <p class="subtitle">Wisdom from Azure SQL Database</p>
+
+        <div class="quote-container">
+            <div id="quote" class="quote-text">
+                Click the button below to get a random quote
+            </div>
+            <div id="author" class="quote-author"></div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <button class="button" id="getQuoteBtn" onclick="getRandomQuote()">
+            Get New Quote
+        </button>
+
+        <div class="stats" id="stats"></div>
+
+        <div class="footer">
+            <div>
+                <span class="tech-badge">🔐 Secure PII Protection</span>
+                <span class="tech-badge">⚡ High Availability</span>
+                <span class="tech-badge">☁️ Azure SQL</span>
+            </div>
+            <p style="margin-top: 15px;">Built with Azure App Service + SQL Database + Terraform</p>
+        </div>
+    </div>
+
+    <script>
+        let isLoading = false;
+
+        // Fetch statistics on page load
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                if (data.totalQuotes) {
+                    document.getElementById('stats').innerHTML = 
+                        `📚 Database contains <strong>${data.totalQuotes}</strong> inspiring quotes`;
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+
+        async function getRandomQuote() {
+            if (isLoading) return;
+
+            const quoteElement = document.getElementById('quote');
+            const authorElement = document.getElementById('author');
+            const loadingElement = document.getElementById('loading');
+            const errorElement = document.getElementById('error');
+            const button = document.getElementById('getQuoteBtn');
+
+            // Reset UI
+            errorElement.classList.remove('active');
+            errorElement.textContent = '';
+
+            // Show loading state
+            isLoading = true;
+            button.disabled = true;
+            loadingElement.classList.add('active');
+            quoteElement.style.opacity = '0.3';
+            authorElement.style.opacity = '0.3';
+
+            try {
+                const response = await fetch('/api/quote');
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to fetch quote');
+                }
+
+                const data = await response.json();
+
+                // Update UI with new quote
+                quoteElement.textContent = `"${data.text}"`;
+                authorElement.textContent = `— ${data.author}`;
+
+                // Trigger animation by removing and re-adding classes
+                quoteElement.style.opacity = '0';
+                authorElement.style.opacity = '0';
+                
+                setTimeout(() => {
+                    quoteElement.style.opacity = '1';
+                    authorElement.style.opacity = '1';
+                    quoteElement.style.transition = 'opacity 0.5s ease-in';
+                    authorElement.style.transition = 'opacity 0.5s ease-in 0.2s';
+                }, 10);
+
+            } catch (error) {
+                console.error('Error:', error);
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.classList.add('active');
+                
+                quoteElement.style.opacity = '1';
+                authorElement.style.opacity = '1';
+            } finally {
+                isLoading = false;
+                button.disabled = false;
+                loadingElement.classList.remove('active');
+            }
+        }
+
+        // Load initial quote and stats on page load
+        window.addEventListener('load', () => {
+            fetchStats();
+            getRandomQuote();
+        });
+    </script>
+</body>
+</html>
