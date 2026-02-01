@@ -20,6 +20,18 @@ autoscale_max_instances            = 10
 autoscale_default_instances        = 3
 autoscale_cpu_threshold_high       = 70
 autoscale_cpu_threshold_low        = 30
+app_service_os_type                = "Linux"
+app_service_always_on              = true
+app_service_identity = {
+  type = "SystemAssigned"
+}
+app_service_application_stack = {
+  node_version = "18-lts"
+}
+app_service_appinsights_extension_version = "~3"
+extra_app_settings = {
+  "WEBSITE_NODE_DEFAULT_VERSION" = "~18"
+}
 
 # SQL Database Configuration - Production uses Premium tier with zone redundancy
 sql_database_sku          = "P1"
@@ -35,6 +47,15 @@ storage_replication_type = "GRS"
 vnet_address_space             = ["10.0.0.0/16"]
 app_service_subnet_prefix      = ["10.0.1.0/24"]
 private_endpoint_subnet_prefix = ["10.0.2.0/24"]
+app_service_subnet_delegations = [
+  {
+    name = "app-service-delegation"
+    service_delegation = {
+      name    = "Microsoft.Web/serverFarms"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    }
+  }
+]
 
 # Monitoring Configuration
 log_analytics_retention_days = 90
