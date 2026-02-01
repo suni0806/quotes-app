@@ -125,10 +125,12 @@ module "app_service" {
   autoscale_default_instances  = var.autoscale_default_instances
   autoscale_cpu_threshold_high = var.autoscale_cpu_threshold_high
   autoscale_cpu_threshold_low  = var.autoscale_cpu_threshold_low
+  os_type                      = var.app_service_os_type
+  identity                     = var.app_service_identity
+  application_stack            = var.app_service_application_stack
   app_settings = merge(var.extra_app_settings, {
     "APPLICATIONINSIGHTS_CONNECTION_STRING"      = module.monitoring.app_insights_connection_string
     "ApplicationInsightsAgent_EXTENSION_VERSION" = var.app_service_appinsights_extension_version
-    "WEBSITE_NODE_DEFAULT_VERSION"               = var.app_service_node_version
     "SQL_SERVER"                                 = module.sql_database.sql_server_fqdn
     "SQL_DATABASE"                               = module.sql_database.sql_database_name
   })

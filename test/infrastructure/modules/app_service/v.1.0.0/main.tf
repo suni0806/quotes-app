@@ -8,7 +8,7 @@ resource "azurerm_service_plan" "main" {
   name                   = "${var.project_name}-appsvcplan-${var.environment}"
   location               = var.location
   resource_group_name    = var.resource_group_name
-  os_type                = "Linux"
+  os_type                = var.os_type
   sku_name               = var.sku_name
   zone_balancing_enabled = var.zone_balancing_enabled
 
@@ -25,14 +25,18 @@ resource "azurerm_linux_web_app" "main" {
   https_only = true
 
   identity {
-    type = "SystemAssigned"
+    type         = var.identity.type
+    identity_ids = var.identity.identity_ids
   }
 
   site_config {
     always_on = var.always_on
 
-    application_stack {
-      node_version = "18-lts"
+    dynamic "application_stack" {
+      for_each = var.application_stack != null ? [var.application_stack] : []
+      content {
+        node_version = try(application_stack.value.node_version, null)
+      }
     }
 
     minimum_tls_version = "1.2"
