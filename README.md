@@ -11,7 +11,7 @@ This project demonstrates production ready Azure infrastructure with security fi
 
 ## Key Features
 
-- ✅ **Security**: Private Endpoints, TDE encryption, Managed Identity, Key Vault
+- ✅ **Security**: Private Endpoints, Managed Identity, Key Vault
 - ✅ **High Availability**: Zone redundancy, auto-scaling (2-5 instances), 99.995% SLA
 - ✅ **Infrastructure as Code**: Modular Terraform with 6 reusable modules
 - ✅ **Monitoring**: Application Insights, health checks, audit logging
